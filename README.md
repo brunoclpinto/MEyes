@@ -48,3 +48,9 @@ Believe this one is gonna be fun to make it work, we'll see.
 ### Bus
 First simple task, detect bus, get the info, let me know its comming and its info.
 Sounds simple enough.
+
+#### Playing on the mini
+- Achieved a nice detection level of Bus information detection in YOLO ✅
+- Tested OCR and found out it can achieve some detection, direct detection happens at 64px crop height with about 32px character height, with some image manipulation ocus pocus need 32px height on the BusInfo crop but its heavy ✅
+- POC, adding YOLO and OCR for live tests.
+- POC done.

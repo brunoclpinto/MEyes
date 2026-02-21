@@ -29,6 +29,16 @@ struct StreamView: View {
 
       // Video backdrop
       if let videoFrame = viewModel.currentVideoFrame, viewModel.hasReceivedFirstFrame {
+        Text(viewModel.fps)
+          .font(.system(size: 36))
+          .bold()
+      } else {
+        ProgressView()
+          .scaleEffect(1.5)
+          .foregroundColor(.white)
+      }
+      /*
+      if let videoFrame = viewModel.currentVideoFrame, viewModel.hasReceivedFirstFrame {
         GeometryReader { geometry in
           Image(uiImage: videoFrame)
             .resizable()
@@ -42,6 +52,7 @@ struct StreamView: View {
           .scaleEffect(1.5)
           .foregroundColor(.white)
       }
+       */
 
       // Bottom controls layer
 
@@ -61,6 +72,9 @@ struct StreamView: View {
       }
     }
     .onDisappear {
+      viewModel.recorder.stopAndSaveToPhotos() { result in
+          print(result)
+      }
       Task {
         if viewModel.streamingStatus != .stopped {
           await viewModel.stopSession()

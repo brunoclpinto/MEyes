@@ -32,7 +32,7 @@ class StreamSessionViewModel: ObservableObject {
   @Published var showError: Bool = false
   @Published var errorMessage: String = ""
   @Published var hasActiveDevice: Bool = false
-
+  
   var isStreaming: Bool {
     streamingStatus != .stopped
   }
@@ -56,15 +56,31 @@ class StreamSessionViewModel: ObservableObject {
   private let wearables: WearablesInterface
   private let deviceSelector: AutoDeviceSelector
   private var deviceMonitorTask: Task<Void, Never>?
-
+  private var started:Date?
+  private var ended:Date?
+  private let tracker: BusApproachTracker?
+  private let preset = OCRPreset(scale: 1, flatten: true, core: 1, binarize: false)
+  @Published var fps = "FPS: "
+  public let recorder = CGImageVideoRecorder(size: CGSize(width: 720, height: 1280), fps: 30)
+  private let speaker = Speaker()
+  private struct Bus {
+    let id: String
+    var ocr: String
+  }
+  private var buses: [Bus] = []
+  
   init(wearables: WearablesInterface) {
+    let yolo26 = try? YOLOModel(.bundle(name: "yolo26sINT8512x896"))
+    let busInfo = try? YOLOModel(.bundle(name: "busInfoYolo26sINT8512x896"))
+    self.tracker = BusApproachTracker(stage1Model: yolo26, stage2Model: busInfo)
+    
     self.wearables = wearables
     // Let the SDK auto-select from available devices
     self.deviceSelector = AutoDeviceSelector(wearables: wearables)
     let config = StreamSessionConfig(
       videoCodec: VideoCodec.raw,
-      resolution: StreamingResolution.low,
-      frameRate: 10)
+      resolution: StreamingResolution.high,
+      frameRate: 30)
     streamSession = StreamSession(streamSessionConfig: config, deviceSelector: deviceSelector)
 
     // Monitor device availability
@@ -86,13 +102,61 @@ class StreamSessionViewModel: ObservableObject {
     // Each VideoFrame contains the raw camera data that we convert to UIImage
     videoFrameListenerToken = streamSession.videoFramePublisher.listen { [weak self] videoFrame in
       Task { @MainActor [weak self] in
+        var fps = "Received Frame\n"
         guard let self else { return }
-
-        if let image = videoFrame.makeUIImage() {
-          self.currentVideoFrame = image
-          if !self.hasReceivedFirstFrame {
-            self.hasReceivedFirstFrame = true
+        fps = "\(fps)Start counting\n"
+        let started = Date.now
+        guard let image = videoFrame.makeUIImage() else {
+          self.fps = "No image"
+          return
+        }
+          
+        self.currentVideoFrame = image
+        if !self.hasReceivedFirstFrame {
+          self.hasReceivedFirstFrame = true
+          try self.recorder.start()
+        }
+        fps = "\(fps) We have image\n"
+        
+        guard let cgImage = image.toCGImage() else {
+          self.fps = "NO CGIMAGE"
+          return
+        }
+        try self.recorder.append(cgImage)
+        
+        do {
+          guard let tracker = self.tracker else {
+            self.fps = "NO TRACKER"
+            return
           }
+          let result = try await tracker.processFrame(
+            cgImage,
+            ocrPreset: self.preset
+          )
+          fps = String(format: "\(fps)FPS: %.2f\n", 1/Date.now.timeIntervalSince(started))
+          for bus in result {
+            if var knownBus = buses.first(where: { $0.id == bus.id }) {
+              let ocr = bus.ocrText.leadingNaturalNumber()
+              guard
+                !ocr.isEmpty,
+                knownBus.ocr != ocr else {
+                return
+              }
+              
+              knownBus.ocr = ocr
+              self.speaker.speak("Bus\(knownBus.id): \(knownBus.ocr)")
+            } else {
+              let id = bus.id
+              let ocr = bus.id.leadingNaturalNumber()
+              fps = "\(fps)Bus\(id): \(ocr)\n"
+              self.buses.append(Bus(id: id, ocr: ocr))
+              self.speaker.speak("\(id): \(ocr)")
+            }
+          }
+          
+          self.fps = fps
+        } catch {
+          self.fps = "NO MODEL"
         }
       }
     }
@@ -211,6 +275,7 @@ class StreamSessionViewModel: ObservableObject {
     case .stopped:
       currentVideoFrame = nil
       streamingStatus = .stopped
+      
     case .waitingForDevice, .starting, .stopping, .paused:
       streamingStatus = .waiting
     case .streaming:

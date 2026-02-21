@@ -28,6 +28,11 @@
 		8FFD60542E849D0D0035E446 /* RegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FFD60532E849D0D0035E446 /* RegistrationView.swift */; };
 		8FFD60602E84A2F70035E446 /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FFD605F2E84A2F70035E446 /* MainAppView.swift */; };
 		8FFD60612E84A2F70035E446 /* DebugMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FFD605E2E84A2F70035E446 /* DebugMenuView.swift */; };
+		B3619FE82F45D6DD0057AD15 /* BusAndOCR.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35224B22F44C7F1006ABDBF /* BusAndOCR.swift */; };
+		B36498332F46496B007FDF9C /* yolo26sINT8512x896.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = B36498312F46496A007FDF9C /* yolo26sINT8512x896.mlpackage */; };
+		B36498352F46496B007FDF9C /* busInfoYolo26sINT8512x896.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = B364982F2F46496A007FDF9C /* busInfoYolo26sINT8512x896.mlpackage */; };
+		B3B6D42A2F47890400317947 /* SaveMov.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B6D4292F4788FB00317947 /* SaveMov.swift */; };
+		B3B6D42C2F484FF500317947 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B6D42B2F484FF200317947 /* Speaker.swift */; };
 		E66D30242E7DA71900470B48 /* MockDeviceKitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E66D30232E7DA71900470B48 /* MockDeviceKitButton.swift */; };
 		E6A188482EB918740097D0E1 /* StreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A188472EB918740097D0E1 /* StreamView.swift */; };
 		E6DA451D2E79A63100E3F688 /* MockDeviceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6DA45182E79A63100E3F688 /* MockDeviceCardView.swift */; };
@@ -81,6 +86,11 @@
 		8FFD60532E849D0D0035E446 /* RegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationView.swift; sourceTree = "<group>"; };
 		8FFD605E2E84A2F70035E446 /* DebugMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMenuView.swift; sourceTree = "<group>"; };
 		8FFD605F2E84A2F70035E446 /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
+		B35224B22F44C7F1006ABDBF /* BusAndOCR.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusAndOCR.swift; sourceTree = "<group>"; };
+		B364982F2F46496A007FDF9C /* busInfoYolo26sINT8512x896.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = busInfoYolo26sINT8512x896.mlpackage; sourceTree = "<group>"; };
+		B36498312F46496A007FDF9C /* yolo26sINT8512x896.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = yolo26sINT8512x896.mlpackage; sourceTree = "<group>"; };
+		B3B6D4292F4788FB00317947 /* SaveMov.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveMov.swift; sourceTree = "<group>"; };
+		B3B6D42B2F484FF200317947 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
 		E66D30232E7DA71900470B48 /* MockDeviceKitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDeviceKitButton.swift; sourceTree = "<group>"; };
 		E699CC952E8150670052C240 /* CameraAccessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CameraAccessTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6A188472EB918740097D0E1 /* StreamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamView.swift; sourceTree = "<group>"; };
@@ -111,6 +121,7 @@
 		5A5A5A5A5A5A5A5A5A5A5A5A = {
 			isa = PBXGroup;
 			children = (
+				B35224B12F44C7DA006ABDBF /* MyStuff */,
 				8FD96B7D2E6F0A9800F56AB1 /* CameraAccess */,
 				8F2A14F12DDBCEB900D4E5F2 /* Frameworks */,
 				7A7A7A7A7A7A7A7A7A7A7A7A /* Products */,
@@ -203,6 +214,18 @@
 				8FFD602A2E8433E20035E446 /* MockDeviceViewModel.swift */,
 			);
 			path = MockDeviceKit;
+			sourceTree = "<group>";
+		};
+		B35224B12F44C7DA006ABDBF /* MyStuff */ = {
+			isa = PBXGroup;
+			children = (
+				B3B6D42B2F484FF200317947 /* Speaker.swift */,
+				B3B6D4292F4788FB00317947 /* SaveMov.swift */,
+				B364982F2F46496A007FDF9C /* busInfoYolo26sINT8512x896.mlpackage */,
+				B36498312F46496A007FDF9C /* yolo26sINT8512x896.mlpackage */,
+				B35224B22F44C7F1006ABDBF /* BusAndOCR.swift */,
+			);
+			path = MyStuff;
 			sourceTree = "<group>";
 		};
 		E6DA451B2E79A63100E3F688 /* MockDeviceKit */ = {
@@ -324,6 +347,9 @@
 				8FD96B7F2E6F0A9800F56AB1 /* CameraAccessApp.swift in Sources */,
 				8FD96B812E6F0A9800F56AB1 /* HomeScreenView.swift in Sources */,
 				8F2D23802E856711002D0588 /* DebugMenuViewModel.swift in Sources */,
+				B3619FE82F45D6DD0057AD15 /* BusAndOCR.swift in Sources */,
+				B36498332F46496B007FDF9C /* yolo26sINT8512x896.mlpackage in Sources */,
+				B36498352F46496B007FDF9C /* busInfoYolo26sINT8512x896.mlpackage in Sources */,
 				8FFD60542E849D0D0035E446 /* RegistrationView.swift in Sources */,
 				8FFD60342E8434070035E446 /* MediaPickerView.swift in Sources */,
 				8FFD60352E8434070035E446 /* StatusText.swift in Sources */,
@@ -335,10 +361,12 @@
 				E6DA451F2E79A63100E3F688 /* MockDeviceKitView.swift in Sources */,
 				8FD96B872E6F0A9800F56AB1 /* StreamSessionViewModel.swift in Sources */,
 				8FD96B882E6F0A9800F56AB1 /* StreamSessionView.swift in Sources */,
+				B3B6D42A2F47890400317947 /* SaveMov.swift in Sources */,
 				8FFD60602E84A2F70035E446 /* MainAppView.swift in Sources */,
 				8FFD60612E84A2F70035E446 /* DebugMenuView.swift in Sources */,
 				8FD96B8A2E6F0A9800F56AB1 /* PhotoPreviewView.swift in Sources */,
 				E66D30242E7DA71900470B48 /* MockDeviceKitButton.swift in Sources */,
+				B3B6D42C2F484FF500317947 /* Speaker.swift in Sources */,
 				8F8F00782E8ACB4600A4BDAF /* WearablesViewModel.swift in Sources */,
 				E6A188482EB918740097D0E1 /* StreamView.swift in Sources */,
 				8FFD5FF52E8422580035E446 /* CircleButton.swift in Sources */,
