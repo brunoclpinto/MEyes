@@ -1,12 +1,48 @@
 # MEyes
 Mobile eyes, an app to support visually impaired by processing what they can't see through the eyes of their wearables and mobile devices.
 
+## Warnings
+This tool is to assist and try to make your life easier and more independent, it is by no means foolproof and its help should be taken as suggestion and not a certainty.  
+Be cautions and keep yourself safe.
+
+## Confidence Level
+In front of every feature and their intermediate steps, an emoji will show how confident i am of its capacity and accuracy, check what they mean.
+
+🤩 - Freakin miracle worker. No fails.  
+😁 - ITSSS GREEAAATTT!!. Works as expected with minor fails and/or false positives.  
+🫩 - Kinda works. Works close to expected with limitations, some fails and/or false positives.  
+😦 - Spotty. Yeah, works some but not fully or consistently.  
+😱 - HELL NO!!!. Mostly unusable and inconsistent.
+
 ## Where will it work
 Well, since models can be converted and logic can be translated into different languages, lets go and say everywhere.
-But being honest, will first start with IOS, followed by Android cause (FGS rulezzz) and might create alternatives for wifi cams on macos, windows and linux at later stage.
-I know, going nuts with this, bare in mind that it will be slow and most likely not steady progress.
 
-## Functions
+## What can it do?
+
+### Bus 🫩
+Yep, detects if bus is coming and tries to process its number/destination information.
+
+#### Technical docs
+
+#### Bus is comming!!! 😁
+Detects bus is on route towards you, combined with simple bounding box size changes for tracking direction.  
+Each detected bus throughout a session will receive an iterated ID starting at Bus1, to try and separate whats been detected.  
+
+Expect some false positives, YOLO detects Tram, large trucks, campers, delivery trucks and trolleys as Bus.
+
+#### Read the info 😦
+It does detect and performs OCR, but results are quite spotty, wrong for most of the time and only correct and clear when its way too close.  
+To improve accuracy and reduce amount of bad information it currently only speaks out the bus number.
+
+## What am working on?
+
+## What will it do?
+### Crosswalk Assistance 
+### Read buttons and device screens
+Goal is to be able to read button options on a device, elevator or whatever.
+Should be able to read all options and single my choice by pointing finger.
+Believe this one is gonna be fun to make it work, we'll see.
+
 ### Navigation
 Path and obstacle detection to help find the best way forward.
 Will use a 3 step approach.
@@ -24,33 +60,5 @@ YOLO will handle this one, will most likely be trained for this app specific nee
 A fail safe depth detection system that is meant to trigger when the previous 2 fail to notice impending obstacle using FastDepth.
 
 #### Matrix mapping
-Convert segmentation into 2D viable path matrix where fastast path can be easily calculated.
+Convert segmentation into 2D viable path matrix where fastest path can be easily calculated.
 Maybe i'll make it work, would be awesome though!!
-
-### Bus
-Yep, detect if bus is comming and try to process its number/destination information.
-A 2 step process this time.
-
-#### Bus is comming!!! 
-Detects bus is on route to your location using a YOLO, which will also be responsible for detecting, so i can separate the image part that contains, bus information for OCR.
-
-#### Read the info
-Reads the bus information for you, so you can know if this is the one you've been wainting for.
-Apple Vision Text Recognition (VNRecognizeTextRequest) or SVTR-Tiny / SVTR-Small.
-Most likely gonna go native for IOS.
-
-### Read buttons and device screens
-Goal is to be able to read button options on a device, elevator or whatever.
-Should be able to read all options and single my choice by pointing finger.
-Believe this one is gonna be fun to make it work, we'll see.
-
-## Working on
-### Bus
-First simple task, detect bus, get the info, let me know its comming and its info.
-Sounds simple enough.
-
-#### Playing on the mini
-- Achieved a nice detection level of Bus information detection in YOLO ✅
-- Tested OCR and found out it can achieve some detection, direct detection happens at 64px crop height with about 32px character height, with some image manipulation ocus pocus need 32px height on the BusInfo crop but its heavy ✅
-- POC, adding YOLO and OCR for live tests.
-- POC done.
