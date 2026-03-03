@@ -12,7 +12,7 @@ import Foundation
 public actor CameraManager {
   public var controllers:[CameraController] = []
   
-  init() async throws {
+  public func load() async {
     await withTaskGroup(of: CameraController.self) { group in
       for controllerType in CameraManager.knownControllers {
         group.addTask {

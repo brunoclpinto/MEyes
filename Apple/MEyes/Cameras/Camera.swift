@@ -5,29 +5,111 @@
 //  Created by Bruno Pinto on 25/02/2026.
 //
 
-import Foundation
+import SwiftUI
+internal import Combine
+import AVFoundation
 
-public enum CameraError: Equatable {
+public enum CameraError: String {
   case notInit
+  case noPermissions
+  case noInput
+  case noOutput
+  case noVideo
+  case noSession
+  case noDelegate
+  
+  public var rawValue: String {
+    switch self {
+      case .notInit:
+        return "Not initialized".localizedCapitalized
+      case .noPermissions:
+        return "Do not have permissions".localizedCapitalized
+      case .noInput:
+        return "Input stream is not valid".localizedCapitalized
+      case .noOutput:
+        return "Output stream is not valid".localizedCapitalized
+      case .noVideo:
+        return "No video feed".localizedCapitalized
+      case .noSession:
+        return "No feed session".localizedCapitalized
+      case .noDelegate:
+        return "Missing delegate".localizedCapitalized
+    }
+  }
 }
 
 public enum CameraState: Equatable {
-  case unavailable(CameraError)
-  case disconnecting
   case disconnected(CameraError?)
+  case forceDisconnect
+  case disconnecting
   case connecting
   case connected
+  case started
+  case starting
+  case stopped
+  case stopping
+  
+  var stringValue: String {
+    switch self {
+      case .disconnected(let error):
+        return "disconnected - \(error?.rawValue ?? "")".localizedCapitalized
+      case .forceDisconnect:
+        return "force disconnect"
+      case .disconnecting:
+        return "disconnecting"
+      case .connecting:
+        return "Connecting"
+      case .connected:
+        return "connected"
+      case .started:
+        return "started"
+      case .starting:
+        return "starting"
+      case .stopped:
+        return "stopped"
+      case .stopping:
+        return "stopping"
+    }
+  }
+}
+
+@MainActor
+class CameraSnapshot: Identifiable {
+  let id: String = UUID().uuidString
+  let name: String
+  let zoom: String
+  let device: (any Camera)?
+
+  init(
+    camera: any Camera,
+    name: String,
+    zoom: String
+  ) {
+    self.device = camera
+    self.name = name
+    self.zoom = zoom
+  }
+  
+  init(
+    state: CameraState,
+    name: String,
+    zoom: String
+  ) {
+    self.device = nil
+    self.name = name
+    self.zoom = zoom
+  }
 }
 
 public protocol Camera: Actor {
   var state: CameraState { get }
+  var name: String {get}
+  var zoom: String {get}
   
-  init() async
+  func connect(nextFrame: @escaping (CGImage?) -> Void) async
+  func disconnect() async
+  func start() async
+  func stop() async
   
-  func connect() async throws
-  func disconnect() async throws
-  func start() async throws
-  func stop() async throws
-  func pause() async throws
-  func resume() async throws
+  func stateUpdates() -> AsyncStream<CameraState> 
 }

@@ -229,7 +229,7 @@ public final class BusApproachTracker {
     private struct Track {
         let numericId: Int
         let name: String
-        var lastBoxDetector: Box
+        var lastBoxDetector: Box          // INTERNAL: always TOP-LEFT origin detector space
         var lastScore: Double
         var lastSeenFrame: Int
         var ageFrames: Int
@@ -287,12 +287,12 @@ public final class BusApproachTracker {
     // MARK: Init
 
     public init?(stage1Model: YOLOModel?, stage2Model: YOLOModel?, config: Config = .init()) {
-      guard
-        let stage1 = stage1Model,
-        let stage2 = stage2Model else {
-        return nil
-      }
-      
+        guard
+            let stage1 = stage1Model,
+            let stage2 = stage2Model else {
+            return nil
+        }
+
         self.stage1 = stage1
         self.stage2 = stage2
         self.config = config
@@ -315,6 +315,13 @@ public final class BusApproachTracker {
         let originalW = Double(frame.width)
         let originalH = Double(frame.height)
 
+        let detectorW = Double(config.detectorW)
+        let detectorH = Double(config.detectorH)
+
+        // Internal canonical origin: TOP-LEFT detector space
+        let stage1Origin = stage1.boxOrigin
+        let stage2Origin = stage2.boxOrigin
+
         // Original CIImage (extent origin is typically (0,0); still safe)
         let originalCI = CIImage(cgImage: frame)
 
@@ -322,7 +329,7 @@ public final class BusApproachTracker {
         let (stage1InputCI, meta1) = Self.letterboxWithMeta(
             originalCI,
             srcW: originalW, srcH: originalH,
-            dstW: Double(config.detectorW), dstH: Double(config.detectorH)
+            dstW: detectorW, dstH: detectorH
         )
 
         // 2) Stage 1 YOLO inference (on detector-sized image)
@@ -330,7 +337,11 @@ public final class BusApproachTracker {
         Self.render(stage1InputCI, to: pb1)
 
         let out1 = try stage1.predict(pixelBuffer: pb1)
-        var det1 = Self.parseDetections(out1, inputW: Double(config.detectorW), inputH: Double(config.detectorH))
+        var det1 = Self.parseDetections(out1, inputW: detectorW, inputH: detectorH)
+
+        // Normalize detections to TOP-LEFT internally (needed if model outputs bottom-left)
+        det1 = det1.map { Self.detectionToTopLeft($0, origin: stage1Origin, inputH: detectorH) }
+
         det1 = det1
             .filter { $0.cls == config.stage1BusClass && $0.score >= config.stage1Conf }
             .sorted { $0.score > $1.score }
@@ -340,6 +351,12 @@ public final class BusApproachTracker {
 
         // 4) Remove stale tracks
         pruneStaleTracks()
+
+        // Helper for API output: detector rect in model-origin space
+        func detectorRectForOutput(_ topLeftDetectorBox: Box) -> CGRect {
+            let b = Self.boxFromTopLeft(topLeftDetectorBox, to: stage1Origin, inputH: detectorH)
+            return b.rectXYWH()
+        }
 
         // 5) For approaching buses, do Stage 2 + OCR using ORIGINAL high-res crops
         var results: [BusResult] = []
@@ -370,21 +387,25 @@ public final class BusApproachTracker {
             let (stage2InputCI, meta2) = Self.letterboxWithMeta(
                 busCropOriginalCI,
                 srcW: busCropW, srcH: busCropH,
-                dstW: Double(config.detectorW), dstH: Double(config.detectorH)
+                dstW: detectorW, dstH: detectorH
             )
 
             let pb2 = try Self.makePixelBuffer(width: config.detectorW, height: config.detectorH)
             Self.render(stage2InputCI, to: pb2)
 
             let out2 = try stage2.predict(pixelBuffer: pb2)
-            var det2 = Self.parseDetections(out2, inputW: Double(config.detectorW), inputH: Double(config.detectorH))
+            var det2 = Self.parseDetections(out2, inputW: detectorW, inputH: detectorH)
+
+            // Normalize detections to TOP-LEFT internally (needed if model outputs bottom-left)
+            det2 = det2.map { Self.detectionToTopLeft($0, origin: stage2Origin, inputH: detectorH) }
+
             det2 = det2.filter { $0.score >= config.stage2Conf }
 
             guard let best2 = pickBestStage2(det2) else {
                 results.append(BusResult(
                     id: t.name,
                     ocrText: "",
-                    bboxDetectorSpace: t.lastBoxDetector.rectXYWH(),
+                    bboxDetectorSpace: detectorRectForOutput(t.lastBoxDetector),
                     bboxOriginalTopLeft: CGRect(x: busBoxOrig.x1, y: busBoxOrig.y1, width: busBoxOrig.w, height: busBoxOrig.h),
                     confidence: t.lastScore,
                     approachingScore: t.approachingScore
@@ -402,7 +423,7 @@ public final class BusApproachTracker {
                 results.append(BusResult(
                     id: t.name,
                     ocrText: "",
-                    bboxDetectorSpace: t.lastBoxDetector.rectXYWH(),
+                    bboxDetectorSpace: detectorRectForOutput(t.lastBoxDetector),
                     bboxOriginalTopLeft: CGRect(x: busBoxOrig.x1, y: busBoxOrig.y1, width: busBoxOrig.w, height: busBoxOrig.h),
                     confidence: t.lastScore,
                     approachingScore: t.approachingScore
@@ -432,7 +453,7 @@ public final class BusApproachTracker {
             results.append(BusResult(
                 id: t.name,
                 ocrText: ocrText,
-                bboxDetectorSpace: t.lastBoxDetector.rectXYWH(),
+                bboxDetectorSpace: detectorRectForOutput(t.lastBoxDetector),
                 bboxOriginalTopLeft: CGRect(x: busBoxOrig.x1, y: busBoxOrig.y1, width: busBoxOrig.w, height: busBoxOrig.h),
                 confidence: t.lastScore,
                 approachingScore: t.approachingScore
@@ -457,6 +478,7 @@ public final class BusApproachTracker {
     // MARK: - Tracking
 
     private func matchAndUpdateTracks(detections: [Detection]) -> [Int] {
+        // detections are expected to already be TOP-LEFT in detector space
         let detBoxes: [Box] = detections.map { Box(x1: $0.x1, y1: $0.y1, x2: $0.x2, y2: $0.y2) }
 
         // Precompute pairs by IoU threshold
@@ -752,6 +774,32 @@ public final class BusApproachTracker {
         }
 
         return out
+    }
+
+    // MARK: - Box origin conversions (robust multi-pipeline support)
+
+    /// Convert a detection to TOP-LEFT origin detector space (internal canonical form).
+    private static func detectionToTopLeft(
+        _ d: Detection,
+        origin: YOLOModel.BoxOrigin,
+        inputH: Double
+    ) -> Detection {
+        guard origin == .bottomLeft else { return d }
+        let y1 = inputH - d.y2
+        let y2 = inputH - d.y1
+        return Detection(x1: d.x1, y1: y1, x2: d.x2, y2: y2, score: d.score, cls: d.cls)
+    }
+
+    /// Convert a TOP-LEFT detector-space box to the requested origin (for API output).
+    private static func boxFromTopLeft(
+        _ b: Box,
+        to origin: YOLOModel.BoxOrigin,
+        inputH: Double
+    ) -> Box {
+        guard origin == .bottomLeft else { return b }
+        let y1 = inputH - b.y2
+        let y2 = inputH - b.y1
+        return Box(x1: b.x1, y1: y1, x2: b.x2, y2: y2)
     }
 
     // MARK: - IoU
@@ -1179,3 +1227,4 @@ public extension NSImage {
     }
 }
 #endif
+

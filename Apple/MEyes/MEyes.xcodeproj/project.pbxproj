@@ -14,9 +14,14 @@
 		B32C5FA92F4CF1AE00DC01E1 /* MWDATCamera in Frameworks */ = {isa = PBXBuildFile; productRef = B32C5FA82F4CF1AE00DC01E1 /* MWDATCamera */; };
 		B32C5FAB2F4CF1AE00DC01E1 /* MWDATCore in Frameworks */ = {isa = PBXBuildFile; productRef = B32C5FAA2F4CF1AE00DC01E1 /* MWDATCore */; };
 		B32C5FAD2F4CF1AE00DC01E1 /* MWDATMockDevice in Frameworks */ = {isa = PBXBuildFile; productRef = B32C5FAC2F4CF1AE00DC01E1 /* MWDATMockDevice */; };
+		B33EDDF12F51FEB600891D36 /* Camera.view.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33EDDF02F51FEB100891D36 /* Camera.view.swift */; };
+		B33EDDF52F51FEF500891D36 /* Camera.view.model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33EDDF42F51FEEE00891D36 /* Camera.view.model.swift */; };
+		B3B416CD2F4DEB2300767DE1 /* Main.view.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416CA2F4DEB2300767DE1 /* Main.view.swift */; };
 		B3B416D82F4EFB0F00767DE1 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416D72F4EFB0B00767DE1 /* Camera.swift */; };
 		B3B416DA2F4EFFD100767DE1 /* Camera.meta.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416D92F4EFFCD00767DE1 /* Camera.meta.swift */; };
 		B3B416DC2F4EFFDC00767DE1 /* Camera.iphone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416DB2F4EFFD700767DE1 /* Camera.iphone.swift */; };
+		B3B416E02F4F037D00767DE1 /* Main.view.model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416DF2F4F037600767DE1 /* Main.view.model.swift */; };
+		B3BCCC042F51B3C10085FC33 /* AVCaptureDevice.extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3BCCC032F51B3830085FC33 /* AVCaptureDevice.extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,9 +49,14 @@
 		B32C5F742F4CE5B800DC01E1 /* MEyes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MEyes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B32C5F812F4CE5BB00DC01E1 /* MEyesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MEyesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B32C5F8B2F4CE5BB00DC01E1 /* MEyesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MEyesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B33EDDF02F51FEB100891D36 /* Camera.view.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.view.swift; sourceTree = "<group>"; };
+		B33EDDF42F51FEEE00891D36 /* Camera.view.model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.view.model.swift; sourceTree = "<group>"; };
+		B3B416CA2F4DEB2300767DE1 /* Main.view.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.view.swift; sourceTree = "<group>"; };
 		B3B416D72F4EFB0B00767DE1 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		B3B416D92F4EFFCD00767DE1 /* Camera.meta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.meta.swift; sourceTree = "<group>"; };
 		B3B416DB2F4EFFD700767DE1 /* Camera.iphone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.iphone.swift; sourceTree = "<group>"; };
+		B3B416DF2F4F037600767DE1 /* Main.view.model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.view.model.swift; sourceTree = "<group>"; };
+		B3BCCC032F51B3830085FC33 /* AVCaptureDevice.extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCaptureDevice.extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -141,6 +151,8 @@
 		B32C5F6B2F4CE5B800DC01E1 = {
 			isa = PBXGroup;
 			children = (
+				B3BCCC022F51AC310085FC33 /* Extensions */,
+				B3B416DE2F4F035A00767DE1 /* Views */,
 				B304ED4D2F4DA873002E01E7 /* Cameras */,
 				B32C5F762F4CE5B800DC01E1 /* MEyes */,
 				B32C5F842F4CE5BB00DC01E1 /* MEyesTests */,
@@ -157,6 +169,41 @@
 				B32C5F8B2F4CE5BB00DC01E1 /* MEyesUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B33EDDF22F51FEC400891D36 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				B3B416CA2F4DEB2300767DE1 /* Main.view.swift */,
+				B3B416DF2F4F037600767DE1 /* Main.view.model.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		B33EDDF32F51FED300891D36 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				B33EDDF02F51FEB100891D36 /* Camera.view.swift */,
+				B33EDDF42F51FEEE00891D36 /* Camera.view.model.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		B3B416DE2F4F035A00767DE1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B33EDDF22F51FEC400891D36 /* Main */,
+				B33EDDF32F51FED300891D36 /* Camera */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B3BCCC022F51AC310085FC33 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B3BCCC032F51B3830085FC33 /* AVCaptureDevice.extensions.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -309,12 +356,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3B416CD2F4DEB2300767DE1 /* Main.view.swift in Sources */,
 				B3B416DA2F4EFFD100767DE1 /* Camera.meta.swift in Sources */,
+				B33EDDF12F51FEB600891D36 /* Camera.view.swift in Sources */,
 				B304ED552F4DB727002E01E7 /* Camera.controller.iphone.swift in Sources */,
+				B3BCCC042F51B3C10085FC33 /* AVCaptureDevice.extensions.swift in Sources */,
 				B304ED562F4DB727002E01E7 /* Camera.controller.meta.swift in Sources */,
 				B304ED572F4DB727002E01E7 /* Camera.controller.swift in Sources */,
 				B3B416D82F4EFB0F00767DE1 /* Camera.swift in Sources */,
+				B3B416E02F4F037D00767DE1 /* Main.view.model.swift in Sources */,
 				B304ED582F4DB727002E01E7 /* Camera.manager.swift in Sources */,
+				B33EDDF52F51FEF500891D36 /* Camera.view.model.swift in Sources */,
 				B3B416DC2F4EFFDC00767DE1 /* Camera.iphone.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -482,11 +534,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MEyes/Info.plist;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Needed to connect to Meta AI Glasses";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to save photos captured from your glasses.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs acce to the camera to process frames in real-time for visual impairement assistance.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -520,11 +573,12 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MEyes/Info.plist;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Needed to connect to Meta AI Glasses";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to save photos captured from your glasses.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs acce to the camera to process frames in real-time for visual impairement assistance.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
