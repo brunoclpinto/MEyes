@@ -6,14 +6,14 @@
 //
 
 import MWDATCore
-import Foundation
 
 public actor CameraControllerMeta: CameraController {
   public private(set) var cameras: [any Camera] = []
-  
-//  private let wearables = Wearables.shared
-//  private var devices: [DeviceIdentifier] = Wearables.shared.devices
-  
+
   public init() async {
+    let wearables = Wearables.shared
+    for deviceId in wearables.devices {
+      cameras.append(CameraMeta(deviceId: deviceId, wearables: wearables))
+    }
   }
 }
