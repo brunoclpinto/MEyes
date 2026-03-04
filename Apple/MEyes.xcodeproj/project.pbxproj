@@ -1,0 +1,886 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B3D0000100000001A0000001 /* YOLOModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000001A0000001 /* YOLOModel.swift */; };
+		B3D0000100000002A0000002 /* ImageLetterboxer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000002A0000002 /* ImageLetterboxer.swift */; };
+		B3D0000100000003A0000003 /* OCRPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000003A0000003 /* OCRPipeline.swift */; };
+		B3D0000100000004A0000004 /* BusDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000004A0000004 /* BusDetector.swift */; };
+		B3D0000100000005A0000005 /* BusTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000005A0000005 /* BusTracker.swift */; };
+		B3D0000100000006A0000006 /* BusInfoDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000006A0000006 /* BusInfoDetector.swift */; };
+		B3AE000100000001AE000001 /* Flow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AE000200000001AE000001 /* Flow.swift */; };
+		B3AE000100000002AE000002 /* WorkflowOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AE000200000002AE000002 /* WorkflowOutput.swift */; };
+		B3AE000100000003AE000003 /* WorkflowGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AE000200000003AE000003 /* WorkflowGraph.swift */; };
+		B3AE000100000004AE000004 /* WorkflowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AE000200000004AE000004 /* WorkflowManager.swift */; };
+		B3AF000100000001AF000001 /* BusDetectionFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF000200000001AF000001 /* BusDetectionFlow.swift */; };
+		B3AF000100000002AF000002 /* BusTrackingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF000200000002AF000002 /* BusTrackingFlow.swift */; };
+		B3AF000100000003AF000003 /* BusInfoFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3AF000200000003AF000003 /* BusInfoFlow.swift */; };
+		B304ED552F4DB727002E01E7 /* Camera.controller.iphone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B304ED522F4DA934002E01E7 /* Camera.controller.iphone.swift */; };
+		B304ED562F4DB727002E01E7 /* Camera.controller.meta.swift in Sources */ = {isa = PBXBuildFile; fileRef = B304ED532F4DA941002E01E7 /* Camera.controller.meta.swift */; };
+		B304ED572F4DB727002E01E7 /* Camera.controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = B304ED542F4DB517002E01E7 /* Camera.controller.swift */; };
+		B304ED582F4DB727002E01E7 /* Camera.manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B304ED4E2F4DA8A0002E01E7 /* Camera.manager.swift */; };
+		B30E1C922F56F908006F2FA1 /* yolo26sINT8512x896.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = B30E1C912F56F908006F2FA1 /* yolo26sINT8512x896.mlpackage */; };
+		B30E1C932F56F908006F2FA1 /* busInfoYolo26sINT8512x896.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = B30E1C902F56F908006F2FA1 /* busInfoYolo26sINT8512x896.mlpackage */; };
+		B30E1C982F56F932006F2FA1 /* SaveMov.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30E1C962F56F932006F2FA1 /* SaveMov.swift */; };
+		B30E1C992F56F932006F2FA1 /* Speaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30E1C972F56F932006F2FA1 /* Speaker.swift */; };
+		B3BA000100000001BA000001 /* BusApproachTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3BA000200000001BA000001 /* BusApproachTracker.swift */; };
+		B32C5FA92F4CF1AE00DC01E1 /* MWDATCamera in Frameworks */ = {isa = PBXBuildFile; productRef = B32C5FA82F4CF1AE00DC01E1 /* MWDATCamera */; };
+		B32C5FAB2F4CF1AE00DC01E1 /* MWDATCore in Frameworks */ = {isa = PBXBuildFile; productRef = B32C5FAA2F4CF1AE00DC01E1 /* MWDATCore */; };
+		B32C5FAD2F4CF1AE00DC01E1 /* MWDATMockDevice in Frameworks */ = {isa = PBXBuildFile; productRef = B32C5FAC2F4CF1AE00DC01E1 /* MWDATMockDevice */; };
+		B33EDDF12F51FEB600891D36 /* Camera.view.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33EDDF02F51FEB100891D36 /* Camera.view.swift */; };
+		B33EDDF52F51FEF500891D36 /* Camera.view.model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33EDDF42F51FEEE00891D36 /* Camera.view.model.swift */; };
+		B3B416CD2F4DEB2300767DE1 /* Main.view.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416CA2F4DEB2300767DE1 /* Main.view.swift */; };
+		B3B416D82F4EFB0F00767DE1 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416D72F4EFB0B00767DE1 /* Camera.swift */; };
+		B3B416DA2F4EFFD100767DE1 /* Camera.meta.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416D92F4EFFCD00767DE1 /* Camera.meta.swift */; };
+		B3B416DC2F4EFFDC00767DE1 /* Camera.iphone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416DB2F4EFFD700767DE1 /* Camera.iphone.swift */; };
+		B3B416E02F4F037D00767DE1 /* Main.view.model.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B416DF2F4F037600767DE1 /* Main.view.model.swift */; };
+		B3BCCC042F51B3C10085FC33 /* AVCaptureDevice.extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3BCCC032F51B3830085FC33 /* AVCaptureDevice.extensions.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B32C5F822F4CE5BB00DC01E1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B32C5F6C2F4CE5B800DC01E1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B32C5F732F4CE5B800DC01E1;
+			remoteInfo = MEyes;
+		};
+		B32C5F8C2F4CE5BB00DC01E1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B32C5F6C2F4CE5B800DC01E1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B32C5F732F4CE5B800DC01E1;
+			remoteInfo = MEyes;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		B304ED4E2F4DA8A0002E01E7 /* Camera.manager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.manager.swift; sourceTree = "<group>"; };
+		B304ED522F4DA934002E01E7 /* Camera.controller.iphone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.controller.iphone.swift; sourceTree = "<group>"; };
+		B304ED532F4DA941002E01E7 /* Camera.controller.meta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.controller.meta.swift; sourceTree = "<group>"; };
+		B304ED542F4DB517002E01E7 /* Camera.controller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.controller.swift; sourceTree = "<group>"; };
+		B30E1C902F56F908006F2FA1 /* busInfoYolo26sINT8512x896.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = busInfoYolo26sINT8512x896.mlpackage; sourceTree = "<group>"; };
+		B30E1C912F56F908006F2FA1 /* yolo26sINT8512x896.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = yolo26sINT8512x896.mlpackage; sourceTree = "<group>"; };
+		B30E1C962F56F932006F2FA1 /* SaveMov.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveMov.swift; sourceTree = "<group>"; };
+		B30E1C972F56F932006F2FA1 /* Speaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speaker.swift; sourceTree = "<group>"; };
+		B3BA000200000001BA000001 /* BusApproachTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusApproachTracker.swift; sourceTree = "<group>"; };
+		B3D0000200000001A0000001 /* YOLOModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YOLOModel.swift; sourceTree = "<group>"; };
+		B3D0000200000002A0000002 /* ImageLetterboxer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLetterboxer.swift; sourceTree = "<group>"; };
+		B3D0000200000003A0000003 /* OCRPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRPipeline.swift; sourceTree = "<group>"; };
+		B3D0000200000004A0000004 /* BusDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusDetector.swift; sourceTree = "<group>"; };
+		B3D0000200000005A0000005 /* BusTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusTracker.swift; sourceTree = "<group>"; };
+		B3D0000200000006A0000006 /* BusInfoDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusInfoDetector.swift; sourceTree = "<group>"; };
+		B3AE000200000001AE000001 /* Flow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Flow.swift; sourceTree = "<group>"; };
+		B3AE000200000002AE000002 /* WorkflowOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowOutput.swift; sourceTree = "<group>"; };
+		B3AE000200000003AE000003 /* WorkflowGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowGraph.swift; sourceTree = "<group>"; };
+		B3AE000200000004AE000004 /* WorkflowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowManager.swift; sourceTree = "<group>"; };
+		B3AF000200000001AF000001 /* BusDetectionFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusDetectionFlow.swift; sourceTree = "<group>"; };
+		B3AF000200000002AF000002 /* BusTrackingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusTrackingFlow.swift; sourceTree = "<group>"; };
+		B3AF000200000003AF000003 /* BusInfoFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusInfoFlow.swift; sourceTree = "<group>"; };
+		B32C5F742F4CE5B800DC01E1 /* MEyes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MEyes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B32C5F812F4CE5BB00DC01E1 /* MEyesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MEyesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B32C5F8B2F4CE5BB00DC01E1 /* MEyesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MEyesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B33EDDF02F51FEB100891D36 /* Camera.view.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.view.swift; sourceTree = "<group>"; };
+		B33EDDF42F51FEEE00891D36 /* Camera.view.model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.view.model.swift; sourceTree = "<group>"; };
+		B3B416CA2F4DEB2300767DE1 /* Main.view.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.view.swift; sourceTree = "<group>"; };
+		B3B416D72F4EFB0B00767DE1 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		B3B416D92F4EFFCD00767DE1 /* Camera.meta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.meta.swift; sourceTree = "<group>"; };
+		B3B416DB2F4EFFD700767DE1 /* Camera.iphone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.iphone.swift; sourceTree = "<group>"; };
+		B3B416DF2F4F037600767DE1 /* Main.view.model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.view.model.swift; sourceTree = "<group>"; };
+		B3BCCC032F51B3830085FC33 /* AVCaptureDevice.extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCaptureDevice.extensions.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B32C5FA62F4CF07B00DC01E1 /* Exceptions for "MEyes" folder in "MEyes" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B32C5F732F4CE5B800DC01E1 /* MEyes */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B32C5F762F4CE5B800DC01E1 /* MEyes */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B32C5FA62F4CF07B00DC01E1 /* Exceptions for "MEyes" folder in "MEyes" target */,
+			);
+			path = MEyes;
+			sourceTree = "<group>";
+		};
+		B32C5F842F4CE5BB00DC01E1 /* MEyesTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MEyesTests;
+			sourceTree = "<group>";
+		};
+		B32C5F8E2F4CE5BB00DC01E1 /* MEyesUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MEyesUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B32C5F712F4CE5B800DC01E1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B32C5FA92F4CF1AE00DC01E1 /* MWDATCamera in Frameworks */,
+				B32C5FAD2F4CF1AE00DC01E1 /* MWDATMockDevice in Frameworks */,
+				B32C5FAB2F4CF1AE00DC01E1 /* MWDATCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B32C5F7E2F4CE5BB00DC01E1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B32C5F882F4CE5BB00DC01E1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B304ED4D2F4DA873002E01E7 /* Cameras */ = {
+			isa = PBXGroup;
+			children = (
+				B304ED4E2F4DA8A0002E01E7 /* Camera.manager.swift */,
+				B304ED542F4DB517002E01E7 /* Camera.controller.swift */,
+				B3B416D72F4EFB0B00767DE1 /* Camera.swift */,
+				B304ED512F4DA915002E01E7 /* Meta */,
+				B304ED502F4DA908002E01E7 /* iPhone */,
+			);
+			path = Cameras;
+			sourceTree = "<group>";
+		};
+		B304ED502F4DA908002E01E7 /* iPhone */ = {
+			isa = PBXGroup;
+			children = (
+				B304ED522F4DA934002E01E7 /* Camera.controller.iphone.swift */,
+				B3B416DB2F4EFFD700767DE1 /* Camera.iphone.swift */,
+			);
+			path = iPhone;
+			sourceTree = "<group>";
+		};
+		B304ED512F4DA915002E01E7 /* Meta */ = {
+			isa = PBXGroup;
+			children = (
+				B304ED532F4DA941002E01E7 /* Camera.controller.meta.swift */,
+				B3B416D92F4EFFCD00767DE1 /* Camera.meta.swift */,
+			);
+			path = Meta;
+			sourceTree = "<group>";
+		};
+		B30E1C8E2F56F8E7006F2FA1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B3D0000300000001A0000001 /* Domain */,
+				B3AE000300000001AE000001 /* WorkflowEngine */,
+				B3AF000300000001AF000001 /* Flows */,
+				B30E1C952F56F91E006F2FA1 /* Workflows */,
+				B30E1C942F56F913006F2FA1 /* Helpers */,
+				B30E1C8F2F56F8EE006F2FA1 /* YOLO */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B3AF000300000001AF000001 /* Flows */ = {
+			isa = PBXGroup;
+			children = (
+				B3AF000200000001AF000001 /* BusDetectionFlow.swift */,
+				B3AF000200000002AF000002 /* BusTrackingFlow.swift */,
+				B3AF000200000003AF000003 /* BusInfoFlow.swift */,
+			);
+			path = Flows;
+			sourceTree = "<group>";
+		};
+		B3AE000300000001AE000001 /* WorkflowEngine */ = {
+			isa = PBXGroup;
+			children = (
+				B3AE000200000001AE000001 /* Flow.swift */,
+				B3AE000200000002AE000002 /* WorkflowOutput.swift */,
+				B3AE000200000003AE000003 /* WorkflowGraph.swift */,
+				B3AE000200000004AE000004 /* WorkflowManager.swift */,
+			);
+			path = WorkflowEngine;
+			sourceTree = "<group>";
+		};
+		B3D0000300000001A0000001 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				B3D0000200000001A0000001 /* YOLOModel.swift */,
+				B3D0000200000002A0000002 /* ImageLetterboxer.swift */,
+				B3D0000200000003A0000003 /* OCRPipeline.swift */,
+				B3D0000200000004A0000004 /* BusDetector.swift */,
+				B3D0000200000005A0000005 /* BusTracker.swift */,
+				B3D0000200000006A0000006 /* BusInfoDetector.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		B30E1C8F2F56F8EE006F2FA1 /* YOLO */ = {
+			isa = PBXGroup;
+			children = (
+				B30E1C902F56F908006F2FA1 /* busInfoYolo26sINT8512x896.mlpackage */,
+				B30E1C912F56F908006F2FA1 /* yolo26sINT8512x896.mlpackage */,
+			);
+			path = YOLO;
+			sourceTree = "<group>";
+		};
+		B30E1C942F56F913006F2FA1 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				B30E1C962F56F932006F2FA1 /* SaveMov.swift */,
+				B30E1C972F56F932006F2FA1 /* Speaker.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		B30E1C952F56F91E006F2FA1 /* Workflows */ = {
+			isa = PBXGroup;
+			children = (
+				B3BA000200000001BA000001 /* BusApproachTracker.swift */,
+			);
+			path = Workflows;
+			sourceTree = "<group>";
+		};
+		B32C5F6B2F4CE5B800DC01E1 = {
+			isa = PBXGroup;
+			children = (
+				B30E1C8E2F56F8E7006F2FA1 /* Models */,
+				B3BCCC022F51AC310085FC33 /* Extensions */,
+				B3B416DE2F4F035A00767DE1 /* Views */,
+				B304ED4D2F4DA873002E01E7 /* Cameras */,
+				B32C5F762F4CE5B800DC01E1 /* MEyes */,
+				B32C5F842F4CE5BB00DC01E1 /* MEyesTests */,
+				B32C5F8E2F4CE5BB00DC01E1 /* MEyesUITests */,
+				B32C5F752F4CE5B800DC01E1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B32C5F752F4CE5B800DC01E1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B32C5F742F4CE5B800DC01E1 /* MEyes.app */,
+				B32C5F812F4CE5BB00DC01E1 /* MEyesTests.xctest */,
+				B32C5F8B2F4CE5BB00DC01E1 /* MEyesUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B33EDDF22F51FEC400891D36 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				B3B416CA2F4DEB2300767DE1 /* Main.view.swift */,
+				B3B416DF2F4F037600767DE1 /* Main.view.model.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		B33EDDF32F51FED300891D36 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				B33EDDF02F51FEB100891D36 /* Camera.view.swift */,
+				B33EDDF42F51FEEE00891D36 /* Camera.view.model.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		B3B416DE2F4F035A00767DE1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B33EDDF22F51FEC400891D36 /* Main */,
+				B33EDDF32F51FED300891D36 /* Camera */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B3BCCC022F51AC310085FC33 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				B3BCCC032F51B3830085FC33 /* AVCaptureDevice.extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B32C5F732F4CE5B800DC01E1 /* MEyes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B32C5F952F4CE5BB00DC01E1 /* Build configuration list for PBXNativeTarget "MEyes" */;
+			buildPhases = (
+				B32C5F702F4CE5B800DC01E1 /* Sources */,
+				B32C5F712F4CE5B800DC01E1 /* Frameworks */,
+				B32C5F722F4CE5B800DC01E1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B32C5F762F4CE5B800DC01E1 /* MEyes */,
+			);
+			name = MEyes;
+			packageProductDependencies = (
+				B32C5FA82F4CF1AE00DC01E1 /* MWDATCamera */,
+				B32C5FAA2F4CF1AE00DC01E1 /* MWDATCore */,
+				B32C5FAC2F4CF1AE00DC01E1 /* MWDATMockDevice */,
+			);
+			productName = MEyes;
+			productReference = B32C5F742F4CE5B800DC01E1 /* MEyes.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B32C5F802F4CE5BB00DC01E1 /* MEyesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B32C5F982F4CE5BB00DC01E1 /* Build configuration list for PBXNativeTarget "MEyesTests" */;
+			buildPhases = (
+				B32C5F7D2F4CE5BB00DC01E1 /* Sources */,
+				B32C5F7E2F4CE5BB00DC01E1 /* Frameworks */,
+				B32C5F7F2F4CE5BB00DC01E1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B32C5F832F4CE5BB00DC01E1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B32C5F842F4CE5BB00DC01E1 /* MEyesTests */,
+			);
+			name = MEyesTests;
+			packageProductDependencies = (
+			);
+			productName = MEyesTests;
+			productReference = B32C5F812F4CE5BB00DC01E1 /* MEyesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B32C5F8A2F4CE5BB00DC01E1 /* MEyesUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B32C5F9B2F4CE5BB00DC01E1 /* Build configuration list for PBXNativeTarget "MEyesUITests" */;
+			buildPhases = (
+				B32C5F872F4CE5BB00DC01E1 /* Sources */,
+				B32C5F882F4CE5BB00DC01E1 /* Frameworks */,
+				B32C5F892F4CE5BB00DC01E1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B32C5F8D2F4CE5BB00DC01E1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B32C5F8E2F4CE5BB00DC01E1 /* MEyesUITests */,
+			);
+			name = MEyesUITests;
+			packageProductDependencies = (
+			);
+			productName = MEyesUITests;
+			productReference = B32C5F8B2F4CE5BB00DC01E1 /* MEyesUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B32C5F6C2F4CE5B800DC01E1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					B32C5F732F4CE5B800DC01E1 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					B32C5F802F4CE5BB00DC01E1 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = B32C5F732F4CE5B800DC01E1;
+					};
+					B32C5F8A2F4CE5BB00DC01E1 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = B32C5F732F4CE5B800DC01E1;
+					};
+				};
+			};
+			buildConfigurationList = B32C5F6F2F4CE5B800DC01E1 /* Build configuration list for PBXProject "MEyes" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B32C5F6B2F4CE5B800DC01E1;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B32C5FA72F4CF1AE00DC01E1 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B32C5F752F4CE5B800DC01E1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B32C5F732F4CE5B800DC01E1 /* MEyes */,
+				B32C5F802F4CE5BB00DC01E1 /* MEyesTests */,
+				B32C5F8A2F4CE5BB00DC01E1 /* MEyesUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B32C5F722F4CE5B800DC01E1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B32C5F7F2F4CE5BB00DC01E1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B32C5F892F4CE5BB00DC01E1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B32C5F702F4CE5B800DC01E1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B3B416CD2F4DEB2300767DE1 /* Main.view.swift in Sources */,
+				B3B416DA2F4EFFD100767DE1 /* Camera.meta.swift in Sources */,
+				B33EDDF12F51FEB600891D36 /* Camera.view.swift in Sources */,
+				B304ED552F4DB727002E01E7 /* Camera.controller.iphone.swift in Sources */,
+				B3BCCC042F51B3C10085FC33 /* AVCaptureDevice.extensions.swift in Sources */,
+				B304ED562F4DB727002E01E7 /* Camera.controller.meta.swift in Sources */,
+				B304ED572F4DB727002E01E7 /* Camera.controller.swift in Sources */,
+				B3B416D82F4EFB0F00767DE1 /* Camera.swift in Sources */,
+				B3B416E02F4F037D00767DE1 /* Main.view.model.swift in Sources */,
+				B304ED582F4DB727002E01E7 /* Camera.manager.swift in Sources */,
+				B3D0000100000001A0000001 /* YOLOModel.swift in Sources */,
+				B3D0000100000002A0000002 /* ImageLetterboxer.swift in Sources */,
+				B3D0000100000003A0000003 /* OCRPipeline.swift in Sources */,
+				B3D0000100000004A0000004 /* BusDetector.swift in Sources */,
+				B3D0000100000005A0000005 /* BusTracker.swift in Sources */,
+				B3D0000100000006A0000006 /* BusInfoDetector.swift in Sources */,
+				B3AE000100000001AE000001 /* Flow.swift in Sources */,
+				B3AE000100000002AE000002 /* WorkflowOutput.swift in Sources */,
+				B3AE000100000003AE000003 /* WorkflowGraph.swift in Sources */,
+				B3AE000100000004AE000004 /* WorkflowManager.swift in Sources */,
+				B3AF000100000001AF000001 /* BusDetectionFlow.swift in Sources */,
+				B3AF000100000002AF000002 /* BusTrackingFlow.swift in Sources */,
+				B3AF000100000003AF000003 /* BusInfoFlow.swift in Sources */,
+				B3BA000100000001BA000001 /* BusApproachTracker.swift in Sources */,
+				B30E1C922F56F908006F2FA1 /* yolo26sINT8512x896.mlpackage in Sources */,
+				B30E1C982F56F932006F2FA1 /* SaveMov.swift in Sources */,
+				B30E1C992F56F932006F2FA1 /* Speaker.swift in Sources */,
+				B30E1C932F56F908006F2FA1 /* busInfoYolo26sINT8512x896.mlpackage in Sources */,
+				B33EDDF52F51FEF500891D36 /* Camera.view.model.swift in Sources */,
+				B3B416DC2F4EFFDC00767DE1 /* Camera.iphone.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B32C5F7D2F4CE5BB00DC01E1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B32C5F872F4CE5BB00DC01E1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B32C5F832F4CE5BB00DC01E1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B32C5F732F4CE5B800DC01E1 /* MEyes */;
+			targetProxy = B32C5F822F4CE5BB00DC01E1 /* PBXContainerItemProxy */;
+		};
+		B32C5F8D2F4CE5BB00DC01E1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B32C5F732F4CE5B800DC01E1 /* MEyes */;
+			targetProxy = B32C5F8C2F4CE5BB00DC01E1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		B32C5F932F4CE5BB00DC01E1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B32C5F942F4CE5BB00DC01E1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B32C5F962F4CE5BB00DC01E1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MEyes/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Needed to connect to Meta AI Glasses";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs acce to the camera to process frames in real-time for visual impairement assistance.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pt.brulai.MEyes;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B32C5F972F4CE5BB00DC01E1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MEyes/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Needed to connect to Meta AI Glasses";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs acce to the camera to process frames in real-time for visual impairement assistance.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pt.brulai.MEyes;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		B32C5F992F4CE5BB00DC01E1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pt.brulai.MEyesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MEyes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MEyes";
+			};
+			name = Debug;
+		};
+		B32C5F9A2F4CE5BB00DC01E1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pt.brulai.MEyesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MEyes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MEyes";
+			};
+			name = Release;
+		};
+		B32C5F9C2F4CE5BB00DC01E1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pt.brulai.MEyesUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MEyes;
+			};
+			name = Debug;
+		};
+		B32C5F9D2F4CE5BB00DC01E1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = pt.brulai.MEyesUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MEyes;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B32C5F6F2F4CE5B800DC01E1 /* Build configuration list for PBXProject "MEyes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B32C5F932F4CE5BB00DC01E1 /* Debug */,
+				B32C5F942F4CE5BB00DC01E1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B32C5F952F4CE5BB00DC01E1 /* Build configuration list for PBXNativeTarget "MEyes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B32C5F962F4CE5BB00DC01E1 /* Debug */,
+				B32C5F972F4CE5BB00DC01E1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B32C5F982F4CE5BB00DC01E1 /* Build configuration list for PBXNativeTarget "MEyesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B32C5F992F4CE5BB00DC01E1 /* Debug */,
+				B32C5F9A2F4CE5BB00DC01E1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B32C5F9B2F4CE5BB00DC01E1 /* Build configuration list for PBXNativeTarget "MEyesUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B32C5F9C2F4CE5BB00DC01E1 /* Debug */,
+				B32C5F9D2F4CE5BB00DC01E1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B32C5FA72F4CF1AE00DC01E1 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/meta-wearables-dat-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B32C5FA82F4CF1AE00DC01E1 /* MWDATCamera */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B32C5FA72F4CF1AE00DC01E1 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */;
+			productName = MWDATCamera;
+		};
+		B32C5FAA2F4CF1AE00DC01E1 /* MWDATCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B32C5FA72F4CF1AE00DC01E1 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */;
+			productName = MWDATCore;
+		};
+		B32C5FAC2F4CF1AE00DC01E1 /* MWDATMockDevice */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B32C5FA72F4CF1AE00DC01E1 /* XCRemoteSwiftPackageReference "meta-wearables-dat-ios" */;
+			productName = MWDATMockDevice;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B32C5F6C2F4CE5B800DC01E1 /* Project object */;
+}
