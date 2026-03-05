@@ -79,15 +79,18 @@ class CameraSnapshot: Identifiable {
   let name: String
   let zoom: String
   let device: (any Camera)?
+  let isRegistration: Bool
 
   init(
     camera: any Camera,
     name: String,
-    zoom: String
+    zoom: String,
+    isRegistration: Bool = false
   ) {
     self.device = camera
     self.name = name
     self.zoom = zoom
+    self.isRegistration = isRegistration
   }
   
   init(
@@ -98,6 +101,7 @@ class CameraSnapshot: Identifiable {
     self.device = nil
     self.name = name
     self.zoom = zoom
+    self.isRegistration = false
   }
 }
 

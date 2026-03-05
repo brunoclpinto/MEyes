@@ -13,6 +13,7 @@ public actor CameraManager {
   public var controllers:[CameraController] = []
   
   public func load() async {
+    controllers = []
     await withTaskGroup(of: CameraController.self) { group in
       for controllerType in CameraManager.knownControllers {
         group.addTask {
