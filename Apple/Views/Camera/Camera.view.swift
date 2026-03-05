@@ -18,24 +18,37 @@ struct CameraView: View {
         .frame(height: 20)
       HStack {
         Spacer()
-        Button {
-          Task {
-            await viewModel.performActionButton()
-          }
-        } label: {
-          Image(systemName: viewModel.actionButtonIcon.rawValue)
-            .font(.title)
-            .padding(50)
-            .background(Circle().fill(Color(.darkGray).opacity(0.8)))
-            .imageScale(.large)
+        switch viewModel.action {
+          case .button(let icon, let label, let hint):
+            Button {
+              Task {
+                await viewModel.performAction()
+              }
+            } label: {
+              Image(systemName: icon)
+                .font(.title)
+                .padding(50)
+                .background(Circle().fill(Color(.darkGray).opacity(0.8)))
+                .imageScale(.large)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(label)
+            .accessibilityHint(hint)
+          case .status(let message):
+            VStack(spacing: 12) {
+              ProgressView()
+                .progressViewStyle(.circular)
+                .scaleEffect(2)
+              Text(message)
+                .font(.body)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal)
+            }
+            .padding(30)
         }
-        .disabled(!viewModel.actionButtonEnabled)
-        .buttonStyle(.plain)
-        .accessibilityLabel(viewModel.actionButtonIcon.accessibleTitle)
-        .accessibilityHint(viewModel.actionButtonIcon.accessibleTitle)
         Spacer()
       }
-      Text(viewModel.state.stringValue)
     }
     .frame(maxHeight: .infinity, alignment: .top)
     .onAppear {

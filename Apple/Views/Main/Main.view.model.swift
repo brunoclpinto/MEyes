@@ -16,29 +16,38 @@ class MainViewModel: ObservableObject {
   
   func load() async {
     await cameraManager.load()
+    cameras = await snapshotCameras()
+  }
+
+  func reload() async {
+    cameras = []
+    await cameraManager.load()
+    cameras = await snapshotCameras()
+  }
+
+  private func snapshotCameras() async -> [CameraSnapshot] {
     let controllers = await cameraManager.controllers
-    let cameras = await withTaskGroup(of: [CameraSnapshot].self) { group in
+    return await withTaskGroup(of: [CameraSnapshot].self) { group in
       for controller in controllers {
         group.addTask {
           let cameras = await controller.cameras
           var cameraSnapshots: [CameraSnapshot] = []
           for camera in cameras {
+            let isReg = camera is CameraMetaRegistration
             await cameraSnapshots.append(
               CameraSnapshot(
                 camera: camera,
                 name: camera.name,
-                zoom: camera.zoom
+                zoom: camera.zoom,
+                isRegistration: isReg
               )
             )
           }
-          
           return cameraSnapshots
         }
       }
       return await group
         .reduce(into: []) { $0 += $1 }
     }
-    
-    self.cameras = cameras
   }
 }

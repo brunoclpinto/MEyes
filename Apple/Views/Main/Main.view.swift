@@ -9,6 +9,8 @@ import SwiftUI
 
 struct MainView: View {
   @StateObject var viewModel = MainViewModel()
+  @State private var needsReload = false
+
   var body: some View {
     Group() {
       if viewModel.cameras.isEmpty {
@@ -26,10 +28,17 @@ struct MainView: View {
                     camera: camera
                   )
                 )
+                .onDisappear {
+                  if camera.isRegistration {
+                    needsReload = true
+                  }
+                }
               } label: {
                 HStack(alignment: .center, spacing: 2) {
                   Text(camera.name).font(.title)
-                  Text(camera.zoom).font(.callout)
+                  if !camera.zoom.isEmpty {
+                    Text(camera.zoom).font(.callout)
+                  }
                 }
                 .padding(.vertical, 20)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -41,6 +50,13 @@ struct MainView: View {
             }
           }
           .frame(maxHeight: .infinity, alignment: .top)
+          .onChange(of: needsReload) {
+            guard needsReload else { return }
+            needsReload = false
+            Task {
+              await viewModel.reload()
+            }
+          }
         }
       }
     }
