@@ -192,13 +192,17 @@ public actor CameraMeta: Camera {
     await bridge.stop()
   }
 
-  private func handleSDKState(_ sdkState: StreamSessionState) {
+  private func handleSDKState(_ sdkState: StreamSessionState) async {
     switch sdkState {
       case .streaming:
-        guard state == .starting else { return }
+        switch state {
+          case .starting:
+            return
+          default:
+            break
+        }
         setState(.started)
       case .stopped, .paused:
-        guard state == .stopping else { return }
         setState(.stopped)
       case .waitingForDevice, .starting, .stopping:
         break

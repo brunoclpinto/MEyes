@@ -11,7 +11,12 @@ import MWDATCore
 @main
 struct HackEyeApp: App {
     init() {
-        try? Wearables.configure()
+        do {
+            try Wearables.configure()
+            print("[HackEye] Wearables SDK configured successfully")
+        } catch {
+            print("[HackEye] Wearables.configure() failed: \(error)")
+        }
     }
 
     var body: some Scene {

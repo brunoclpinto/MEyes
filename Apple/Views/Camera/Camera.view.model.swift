@@ -40,6 +40,14 @@ class CameraViewModel: ObservableObject {
       return
     }
 
+    if camera.isRegistration {
+      // Registration camera: connect() drives the OAuth flow.
+      if case .disconnected = state {
+        await device.connect { _ in }
+      }
+      return
+    }
+
     switch state {
       case .connected, .stopped:
         await device.start()
@@ -110,10 +118,7 @@ class CameraViewModel: ObservableObject {
 
   private func actionForRegistrationState(_ state: CameraState) -> CameraAction {
     switch state {
-      case .disconnected(let error):
-        if let error {
-          return .status(message: error.rawValue)
-        }
+      case .disconnected:
         return .button(
           icon: "link.badge.plus",
           label: String(localized: "Register"),

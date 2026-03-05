@@ -34,9 +34,14 @@ public actor CameraMetaRegistration: Camera {
     setState(.connecting)
 
     // Start the OAuth registration flow (opens the Meta AI companion app).
+    // Must dispatch to MainActor — the SDK opens a URL via UIApplication.
     do {
-      try await wearables.startRegistration()
+      try await Self.startRegistrationOnMain(wearables: wearables)
     } catch {
+      print("[CameraMetaRegistration] startRegistration failed: \(String(describing: error))")
+      if let regError = error as? RegistrationError {
+        print("[CameraMetaRegistration] RegistrationError description: \(regError.description)")
+      }
       setState(.disconnected(.noPermissions))
       return
     }
@@ -74,6 +79,11 @@ public actor CameraMetaRegistration: Camera {
   private func setState(_ newState: CameraState) {
     state = newState
     stateContinuations.forEach { $0.yield(newState) }
+  }
+
+  @MainActor
+  private static func startRegistrationOnMain(wearables: WearablesInterface) async throws {
+    try await wearables.startRegistration()
   }
 
   private func waitForRegistration(timeout: Duration) async -> Bool {

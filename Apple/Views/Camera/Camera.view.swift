@@ -54,7 +54,9 @@ struct CameraView: View {
     .onAppear {
       Task {
         await viewModel.startObservingState()
+        // Registration cameras wait for the user to tap the button.
         guard
+          !viewModel.camera.isRegistration,
           let camera = viewModel.camera.device
         else {
           return

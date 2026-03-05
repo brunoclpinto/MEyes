@@ -81,8 +81,8 @@ public final class BusApproachTracker {
 
     public func processFrame(
         _ frame: CGImage,
-        ocrPreset: OCRPreset = OCRPreset(scale: 1, flatten: true, core: 1, binarize: false),
-        recognitionLanguages: [String]? = nil,
+        ocrPreset: OCRPreset = .default,
+        recognitionLanguages: [String]? = ["pt-PT"],
         usesLanguageCorrection: Bool = false,
         recognitionLevel: VNRequestTextRecognitionLevel = .accurate
     ) async throws -> [BusResult] {
