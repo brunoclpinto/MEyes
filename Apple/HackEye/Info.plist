@@ -21,10 +21,10 @@
 	<dict>
 		<key>AppLinkURLScheme</key>
 		<string>meyes://</string>
-		<key>ClientToken</key>
-		<string>$(CLIENT_TOKEN)</string>
 		<key>MetaAppID</key>
-		<string>0</string>
+		<string>$(MWDAT_META_APP_ID)</string>
+		<key>ClientToken</key>
+		<string>$(MWDAT_CLIENT_TOKEN)</string>
 		<key>TeamID</key>
 		<string>$(DEVELOPMENT_TEAM)</string>
 	</dict>
