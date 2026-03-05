@@ -1,13 +1,13 @@
 //
-//  MEyesUITests.swift
-//  MEyesUITests
+//  HackEyeUITests.swift
+//  HackEyeUITests
 //
 //  Created by Bruno Pinto on 23/02/2026.
 //
 
 import XCTest
 
-final class MEyesUITests: XCTestCase {
+final class HackEyeUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

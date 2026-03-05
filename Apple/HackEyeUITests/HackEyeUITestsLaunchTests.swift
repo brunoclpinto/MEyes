@@ -1,13 +1,13 @@
 //
-//  MEyesUITestsLaunchTests.swift
-//  MEyesUITests
+//  HackEyeUITestsLaunchTests.swift
+//  HackEyeUITests
 //
 //  Created by Bruno Pinto on 23/02/2026.
 //
 
 import XCTest
 
-final class MEyesUITestsLaunchTests: XCTestCase {
+final class HackEyeUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

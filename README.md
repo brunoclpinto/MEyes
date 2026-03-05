@@ -1,4 +1,4 @@
-# MEyes
+# HackEye
 Mobile eyes, an app to support visually impaired by processing what they can't see through the eyes of their wearables and mobile devices.
 
 ## Warnings
@@ -54,7 +54,7 @@ Model still requires fine-tuning for both indoor and outdoor, follow its progres
 
 #### What's coming my way
 Detects potential collisions by tracking object movements and whether their path intersects with ours.
-YOLO will handle this one, will most likely be trained for this app specific needs, check it out https://github.com/brunoclpinto/YOLO-MEyes
+YOLO will handle this one, will most likely be trained for this app specific needs, check it out https://github.com/brunoclpinto/YOLO-HackEye
 
 #### STOP NOW
 A fail safe depth detection system that is meant to trigger when the previous 2 fail to notice impending obstacle using FastDepth.

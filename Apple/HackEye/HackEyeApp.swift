@@ -1,6 +1,6 @@
 //
-//  MEyesApp.swift
-//  MEyes
+//  HackEyeApp.swift
+//  HackEye
 //
 //  Created by Bruno Pinto on 23/02/2026.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct MEyesApp: App {
+struct HackEyeApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
