@@ -22,7 +22,7 @@ public struct OCRPreset: Sendable {
     public var thin: Thin
     public var regrow: Float
 
-    public init(
+    nonisolated public init(
         scale: Float = 1,
         flatten: Bool = true,
         core: Float = 1,
@@ -40,6 +40,15 @@ public struct OCRPreset: Sendable {
         self.shrink = shrink
         self.thin = thin
         self.regrow = regrow
+    }
+
+    /// Default preset — grayscale, no binarization.
+    public nonisolated static var `default`: OCRPreset {
+        OCRPreset(
+            scale: 1, flatten: true, core: 1,
+            binarize: false, thresh: nil, shrink: 0,
+            thin: .disabled, regrow: 0
+        )
     }
 
     /// Minimal grayscale only — all preprocessing disabled.
