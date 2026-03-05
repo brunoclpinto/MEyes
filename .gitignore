@@ -64,3 +64,6 @@ fastlane/test_output
 
 # Claude Code
 memory/
+
+# Secrets (MWDAT credentials)
+Secrets.xcconfig
