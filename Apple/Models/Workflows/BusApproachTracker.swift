@@ -36,6 +36,12 @@ public final class BusApproachTracker {
         public let approachingScore: Double
     }
 
+    /// Timing information for each stage of the workflow.
+    public struct TimingInfo: Sendable {
+        public let flowTimings: [(name: String, ms: Double)]
+        public let totalMs: Double
+    }
+
     // MARK: Flows & engine
 
     private let detectionFlow: BusDetectionFlow
@@ -85,23 +91,35 @@ public final class BusApproachTracker {
         recognitionLanguages: [String]? = ["pt-PT"],
         usesLanguageCorrection: Bool = false,
         recognitionLevel: VNRequestTextRecognitionLevel = .accurate
-    ) async throws -> [BusResult] {
+    ) async throws -> (results: [BusResult], timing: TimingInfo) {
 
-        // Stage 1 — concurrent group (single flow; future flows like segmentation slot in here)
+        let workflowStart = CFAbsoluteTimeGetCurrent()
+        var flowTimings: [(name: String, ms: Double)] = []
+
+        // Stage 1 — detection
+        var t0 = CFAbsoluteTimeGetCurrent()
         let detectionAny = AnyFlow(detectionFlow)
         let concurrent = await manager.runConcurrent(flows: [detectionAny], input: frame)
+        flowTimings.append((detectionFlow.id, (CFAbsoluteTimeGetCurrent() - t0) * 1000))
 
         guard let detOut = concurrent.get(BusDetectionFlow.Output.self, for: detectionFlow.id) else {
-            return []
+            let totalMs = (CFAbsoluteTimeGetCurrent() - workflowStart) * 1000
+            return ([], TimingInfo(flowTimings: flowTimings, totalMs: totalMs))
         }
 
-        // Stage 2 — serial: tracking depends on detection output
+        // Stage 2 — tracking
+        t0 = CFAbsoluteTimeGetCurrent()
         let tracked = try await trackingFlow.run(input: detOut.detections)
+        flowTimings.append((trackingFlow.id, (CFAbsoluteTimeGetCurrent() - t0) * 1000))
 
         let approaching = tracked.filter { $0.isApproaching }
-        guard !approaching.isEmpty else { return [] }
+        guard !approaching.isEmpty else {
+            let totalMs = (CFAbsoluteTimeGetCurrent() - workflowStart) * 1000
+            return ([], TimingInfo(flowTimings: flowTimings, totalMs: totalMs))
+        }
 
-        // Stage 3 — info detection per approaching bus (could be parallelised in future)
+        // Stage 3 — info detection per approaching bus
+        t0 = CFAbsoluteTimeGetCurrent()
         let originalCI = CIImage(cgImage: frame)
         let originalW = Double(frame.width)
         let originalH = Double(frame.height)
@@ -109,7 +127,6 @@ public final class BusApproachTracker {
         var results: [BusResult] = []
 
         for bus in approaching {
-            // Match detection to get original-space box
             let busBoxOrig: Box
             if let match = detOut.detections.first(where: { iou($0.boxDetector, bus.lastBoxDetector) >= 0.5 }) {
                 busBoxOrig = match.boxOriginal
@@ -139,9 +156,11 @@ public final class BusApproachTracker {
                 confidence: bus.lastScore, approachingScore: bus.approachingScore
             ))
         }
+        flowTimings.append((infoFlow.id, (CFAbsoluteTimeGetCurrent() - t0) * 1000))
 
         results.sort { $0.id < $1.id }
-        return results
+        let totalMs = (CFAbsoluteTimeGetCurrent() - workflowStart) * 1000
+        return (results, TimingInfo(flowTimings: flowTimings, totalMs: totalMs))
     }
 
     // MARK: - Helpers

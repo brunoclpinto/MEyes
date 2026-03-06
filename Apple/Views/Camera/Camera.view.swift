@@ -11,6 +11,9 @@ struct CameraView: View {
   @StateObject var viewModel: CameraViewModel
   @Environment(\.dismiss) private var dismiss
 
+  #if DevDebug
+  @State private var debugFrameImage: UIImage?
+  #endif
   
   var body: some View {
     VStack {
@@ -18,6 +21,19 @@ struct CameraView: View {
         .font(.title)
       Spacer()
         .frame(height: 20)
+
+      #if DevDebug
+      if let debugFrameImage {
+        Image(uiImage: debugFrameImage)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(maxWidth: .infinity)
+          .padding(.horizontal)
+      }
+      Spacer()
+        .frame(height: 20)
+      #endif
+
       HStack {
         Spacer()
         switch viewModel.action {
@@ -65,6 +81,12 @@ struct CameraView: View {
           guard let image, let viewModel else { return }
           Task {
             await viewModel.processFrame(image)
+            #if DevDebug
+            let overlaid = await viewModel.overlayFrame(image)
+            await MainActor.run {
+              debugFrameImage = UIImage(cgImage: overlaid)
+            }
+            #endif
           }
         }
       }
