@@ -61,7 +61,11 @@ struct CameraView: View {
         else {
           return
         }
-        await camera.connect { image in
+        await camera.connect { [weak viewModel] image in
+          guard let image, let viewModel else { return }
+          Task {
+            await viewModel.processFrame(image)
+          }
         }
       }
     }

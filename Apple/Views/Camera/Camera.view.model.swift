@@ -8,6 +8,7 @@
 import SwiftUI
 internal import Combine
 import AVFoundation
+import CoreGraphics
 
 /// Describes what the camera view should display in its action area.
 enum CameraAction {
@@ -24,9 +25,29 @@ class CameraViewModel: ObservableObject {
   @Published var action: CameraAction = .status(message: "Initializing")
   
   private var stateTask: Task<Void, Never>?
+  private let tracker: BusApproachTracker?
+  private let speaker = Speaker()
   
   init(camera: CameraSnapshot) {
     self.camera = camera
+
+    let stage1 = try? YOLOModel(.bundle(name: "yolo26sINT8512x896"))
+    let stage2 = try? YOLOModel(.bundle(name: "busInfoYolo26sINT8512x896"))
+    self.tracker = BusApproachTracker(stage1Model: stage1, stage2Model: stage2)
+  }
+  
+  func processFrame(_ frame: CGImage) async {
+    guard let tracker else { return }
+    do {
+      let results = try await tracker.processFrame(frame)
+      for bus in results {
+        let number = bus.ocrText.leadingNaturalNumber()
+        guard !number.isEmpty else { continue }
+        speaker.speak(number)
+      }
+    } catch {
+      print("[CameraViewModel] processFrame error: \(error)")
+    }
   }
   
   func performAction() async {
