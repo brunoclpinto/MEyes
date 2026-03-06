@@ -20,6 +20,11 @@ private final class MetaStreamBridge: @unchecked Sendable {
   private var videoToken: AnyListenerToken?
   private var errorToken: AnyListenerToken?
 
+  /// Timestamp of the last frame forwarded to the consumer.
+  /// Used to enforce the configured frame rate on the app side because
+  /// the SDK does not always honour StreamSessionConfig.frameRate.
+  private var lastFrameTime: CFAbsoluteTime = 0
+
   nonisolated init() {}
 
   func setup(
@@ -29,14 +34,20 @@ private final class MetaStreamBridge: @unchecked Sendable {
     onError: @escaping () -> Void
   ) {
     let selector = AutoDeviceSelector(wearables: wearables)
-    let config = StreamSessionConfig(videoCodec: .raw, resolution: .high, frameRate: 30)
+    let frameRate: UInt = 30
+    let config = StreamSessionConfig(videoCodec: .raw, resolution: .high, frameRate: frameRate)
     let session = StreamSession(streamSessionConfig: config, deviceSelector: selector)
+
+    let minInterval: CFAbsoluteTime = 1.0 / CFAbsoluteTime(frameRate)
 
     stateToken = session.statePublisher.listen { sdkState in
       onState(sdkState)
     }
     videoToken = session.videoFramePublisher.listen { videoFrame in
       Task { @MainActor in
+        let now = CFAbsoluteTimeGetCurrent()
+        guard now - self.lastFrameTime >= minInterval else { return }
+        self.lastFrameTime = now
         onFrame(videoFrame.makeUIImage()?.toCGImage())
       }
     }
@@ -52,7 +63,7 @@ private final class MetaStreamBridge: @unchecked Sendable {
     errorToken = nil
   }
 
-  var isReady: Bool { session != nil }
+  var isReady: Bool { return session != nil }
   func start() async { await session?.start() }
   func stop() async { await session?.stop() }
 
@@ -60,6 +71,7 @@ private final class MetaStreamBridge: @unchecked Sendable {
     cancelListeners()
     await session?.stop()
     session = nil
+    lastFrameTime = 0
   }
 }
 
@@ -68,7 +80,7 @@ private final class MetaStreamBridge: @unchecked Sendable {
 public actor CameraMeta: Camera {
   public private(set) var state: CameraState = .disconnected(.notInit)
   public let name: String
-  public let zoom: String = "1x"
+  public let zoom: String = ""
 
   private let wearables: WearablesInterface
   private let bridge = MetaStreamBridge()
@@ -76,7 +88,9 @@ public actor CameraMeta: Camera {
 
   init(deviceId: DeviceIdentifier, wearables: WearablesInterface) {
     self.wearables = wearables
-    self.name = wearables.deviceForIdentifier(deviceId)?.nameOrId() ?? "Meta Glasses"
+    self.name = wearables
+      .deviceForIdentifier(deviceId)?
+      .nameOrId() ?? String(localized: "Unnamed Meta Wearable")
   }
 
   public func connect(nextFrame: @escaping (CGImage?) -> Void) async {
@@ -171,6 +185,7 @@ public actor CameraMeta: Camera {
       return
     }
     await bridge.start()
+    setState(.started)
   }
 
   public func stop() async {
@@ -190,6 +205,7 @@ public actor CameraMeta: Camera {
     }
     setState(.stopping)
     await bridge.stop()
+    setState(.stopped)
   }
 
   private func handleSDKState(_ sdkState: StreamSessionState) async {
