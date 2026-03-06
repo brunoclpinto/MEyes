@@ -39,15 +39,7 @@ class CameraViewModel: ObservableObject {
       }
       return
     }
-
-    if camera.isRegistration {
-      // Registration camera: connect() drives the OAuth flow.
-      if case .disconnected = state {
-        await device.connect { _ in }
-      }
-      return
-    }
-
+    
     switch state {
       case .connected, .stopped:
         await device.start()
@@ -76,7 +68,7 @@ class CameraViewModel: ObservableObject {
   }
 
   // MARK: - Private
-
+  
   private func actionForState(_ state: CameraState) -> CameraAction {
     if camera.isRegistration {
       return actionForRegistrationState(state)
@@ -118,17 +110,17 @@ class CameraViewModel: ObservableObject {
 
   private func actionForRegistrationState(_ state: CameraState) -> CameraAction {
     switch state {
-      case .disconnected:
+      case .connected:
         return .button(
           icon: "link.badge.plus",
           label: String(localized: "Register"),
           hint: String(localized: "Opens Meta AI to register this app with your glasses")
         )
-      case .connecting:
+      case .connecting, .starting:
         return .status(
           message: String(localized: "Waiting for registration in Meta AI. Approve the request and return to this app.")
         )
-      case .connected:
+      case .started:
         return .status(
           message: String(localized: "Registration complete. Discovering cameras.")
         )

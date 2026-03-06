@@ -9,6 +9,8 @@ import SwiftUI
 
 struct CameraView: View {
   @StateObject var viewModel: CameraViewModel
+  @Environment(\.dismiss) private var dismiss
+
   
   var body: some View {
     VStack {
@@ -54,9 +56,7 @@ struct CameraView: View {
     .onAppear {
       Task {
         await viewModel.startObservingState()
-        // Registration cameras wait for the user to tap the button.
         guard
-          !viewModel.camera.isRegistration,
           let camera = viewModel.camera.device
         else {
           return
@@ -70,6 +70,16 @@ struct CameraView: View {
         await viewModel.camera.device?.disconnect()
         viewModel.stopObservingState()
       }
+    }
+    .onChange(of: viewModel.state) {
+      guard
+        viewModel.camera.isRegistration,
+        viewModel.state == .started
+      else {
+        return
+      }
+      
+      dismiss()
     }
   }
 }

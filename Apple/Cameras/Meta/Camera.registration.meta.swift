@@ -30,8 +30,16 @@ public actor CameraMetaRegistration: Camera {
   // MARK: - Camera protocol
 
   public func connect(nextFrame: @escaping (CGImage?) -> Void) async {
-    guard case .disconnected = state else { return }
-    setState(.connecting)
+    setState(.connected)
+  }
+
+  public func disconnect() async {
+    setState(.disconnected(nil))
+  }
+
+  public func start() async {
+    guard case .connected = state else { return }
+    setState(.starting)
 
     // Start the OAuth registration flow (opens the Meta AI companion app).
     // Must dispatch to MainActor — the SDK opens a URL via UIApplication.
@@ -49,18 +57,10 @@ public actor CameraMetaRegistration: Camera {
     // Wait for the registration callback to complete (up to 2 minutes).
     let registered = await waitForRegistration(timeout: .seconds(120))
     if registered {
-      setState(.connected)
+      setState(.started)
     } else {
       setState(.disconnected(.noPermissions))
     }
-  }
-
-  public func disconnect() async {
-    setState(.disconnected(nil))
-  }
-
-  public func start() async {
-    // No-op — this camera has no stream; the UI should reload instead.
   }
 
   public func stop() async {
