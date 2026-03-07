@@ -35,9 +35,9 @@ final class CIImageRecorder {
     private var adaptor: AVAssetWriterInputPixelBufferAdaptor?
 
     private var finished = false
-    private var frameCount: Int64 = 0
     private var didAppendAnyFrame = false
-    private var lastAppendTime: CFAbsoluteTime = 0
+    private var startTime: CFAbsoluteTime = 0
+    private var lastPresentationTime: CFAbsoluteTime = 0
 
     init(
         size: CGSize,
@@ -99,22 +99,26 @@ final class CIImageRecorder {
             adaptor = a
 
             finished = false
-            frameCount = 0
             didAppendAnyFrame = false
+            startTime = 0
+            lastPresentationTime = 0
         }
     }
 
     func append(_ image: CIImage) throws {
-        // Throttle to target fps so cameras delivering at higher rates don't
-        // produce sped-up video.
         let now = CFAbsoluteTimeGetCurrent()
-        let minInterval = 1.0 / CFAbsoluteTime(fps)
-        guard frameCount == 0 || (now - lastAppendTime) >= minInterval else { return }
-        lastAppendTime = now
 
-        let t = CMTime(value: frameCount, timescale: fps)
+        // Throttle: skip frames arriving faster than the target fps
+        let minInterval = 1.0 / CFAbsoluteTime(fps)
+        if lastPresentationTime > 0, (now - lastPresentationTime) < minInterval { return }
+        lastPresentationTime = now
+
+        // Use wall-clock elapsed time as the presentation timestamp
+        // so the video plays back at real-time speed.
+        if startTime == 0 { startTime = now }
+        let elapsed = now - startTime
+        let t = CMTime(seconds: elapsed, preferredTimescale: 600)
         try append(image, at: t)
-        frameCount += 1
     }
 
     func append(_ image: CIImage, at time: CMTime) throws {

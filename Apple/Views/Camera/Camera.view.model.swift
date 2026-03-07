@@ -71,8 +71,9 @@ class CameraViewModel: ObservableObject {
       }
     }
 
-    // Record the original frame before any processing
-    try? recorder?.append(frame)
+    // Record frame with overlay burned in
+    let overlaid = overlayFrame(frame)
+    try? recorder?.append(overlaid)
     #endif
 
     do {
@@ -135,6 +136,73 @@ class CameraViewModel: ObservableObject {
       }
     }
     recorder = nil
+  }
+
+  // MARK: - Debug: Overlay
+
+  private func overlayFrame(_ frame: CIImage) -> CIImage {
+    let extent = frame.extent
+    let w = extent.width
+    let h = extent.height
+    guard w > 0, h > 0 else { return frame }
+
+    var lines: [String] = []
+    lines.append(String(format: "FPS: %.1f", currentFPS))
+
+    if let timing = lastTiming {
+      for (name, ms) in timing.flowTimings {
+        lines.append(String(format: "%@: %.1f ms", name, ms))
+      }
+      lines.append(String(format: "workflow: %.1f ms", timing.totalMs))
+    }
+
+    let maxOverlayWidth: CGFloat = 640
+    let fontSize: CGFloat = 32
+    let lineHeight = fontSize * 1.3
+    let margin: CGFloat = 8
+    let textBlockHeight = lineHeight * CGFloat(lines.count) + margin * 2
+    let textBlockWidth = min(maxOverlayWidth, w)
+
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+    let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
+
+    guard let ctx = CGContext(
+      data: nil, width: Int(w), height: Int(h),
+      bitsPerComponent: 8, bytesPerRow: 0,
+      space: colorSpace, bitmapInfo: bitmapInfo
+    ) else { return frame }
+
+    ctx.clear(CGRect(origin: .zero, size: CGSize(width: w, height: h)))
+
+    // Semi-transparent black background for text
+    ctx.setFillColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+    ctx.fill(CGRect(x: 0, y: 0, width: textBlockWidth, height: textBlockHeight))
+
+    let attrs: [NSAttributedString.Key: Any] = [
+      .font: UIFont.monospacedSystemFont(ofSize: fontSize, weight: .bold),
+      .foregroundColor: UIColor.green
+    ]
+
+    // Draw text (flip coordinates for UIKit text drawing)
+    UIGraphicsPushContext(ctx)
+    ctx.saveGState()
+    ctx.textMatrix = .identity
+    ctx.translateBy(x: 0, y: h)
+    ctx.scaleBy(x: 1, y: -1)
+
+    let startY = h - textBlockHeight + margin
+    for (i, line) in lines.enumerated() {
+      let y = startY + CGFloat(i) * lineHeight
+      let str = NSAttributedString(string: line, attributes: attrs)
+      str.draw(at: CGPoint(x: margin, y: y))
+    }
+
+    ctx.restoreGState()
+    UIGraphicsPopContext()
+
+    guard let overlayCG = ctx.makeImage() else { return frame }
+    let overlayCI = CIImage(cgImage: overlayCG)
+    return overlayCI.composited(over: frame)
   }
   #endif
   
