@@ -133,7 +133,7 @@ final class CIImageRecorder {
             ciContext.render(
                 image,
                 to: outputBuffer,
-                bounds: CGRect(origin: .zero, size: frameSize),
+                bounds: image.extent,
                 colorSpace: CGColorSpaceCreateDeviceRGB()
             )
 

@@ -30,6 +30,7 @@ class CameraViewModel: ObservableObject {
 
   #if DevDebug
   private var recorder: CIImageRecorder?
+  private var recordingPending = false
   private var lastFrameTime: CFAbsoluteTime = 0
   private var currentFPS: Double = 0
   private var lastTiming: BusApproachTracker.TimingInfo?
@@ -54,6 +55,21 @@ class CameraViewModel: ObservableObject {
       if delta > 0 { currentFPS = 1.0 / delta }
     }
     lastFrameTime = now
+
+    // Lazily create recorder on first frame so we capture the real size
+    if recordingPending {
+      recordingPending = false
+      let size = frame.extent.size
+      guard size.width > 0, size.height > 0 else { return }
+      recorder = CIImageRecorder(size: size)
+      do {
+        try recorder?.start()
+        print("[DevDebug] Recording started (\(Int(size.width))x\(Int(size.height)))")
+      } catch {
+        print("[DevDebug] Failed to start recording: \(error)")
+        recorder = nil
+      }
+    }
 
     // Record the original frame before any processing
     try? recorder?.append(frame)
@@ -101,22 +117,15 @@ class CameraViewModel: ObservableObject {
   // MARK: - Debug: Video Recording
 
   private func startRecording() {
-    // Use a common frame size; recorder will skip mismatched frames
-    let size = CGSize(width: 1280, height: 720)
-    recorder = CIImageRecorder(size: size)
-    do {
-      try recorder?.start()
-      print("[DevDebug] Recording started")
-    } catch {
-      print("[DevDebug] Failed to start recording: \(error)")
-      recorder = nil
-    }
+    // Defer actual recorder creation to the first frame so we capture the real size
+    recordingPending = true
     lastFrameTime = 0
     currentFPS = 0
     lastTiming = nil
   }
 
   private func stopRecording() {
+    recordingPending = false
     recorder?.stopAndSaveToPhotos { result in
       switch result {
         case .success:
