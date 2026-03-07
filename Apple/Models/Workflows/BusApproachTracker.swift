@@ -46,7 +46,6 @@ public final class BusApproachTracker {
     private let detectionFlow: BusDetectionFlow
     private let trackingFlow: BusTrackingFlow
     private let infoFlow: BusInfoFlow
-    private let manager: WorkflowManager<CIImage>
     private let stage1Origin: YOLOModel.BoxOrigin
     private let detectorH: Double
 
@@ -79,7 +78,6 @@ public final class BusApproachTracker {
         detectionFlow = BusDetectionFlow(detector: BusDetector(model: s1, config: d1cfg))
         trackingFlow  = BusTrackingFlow(tracker: BusTracker(config: tcfg))
         infoFlow      = BusInfoFlow(infoDetector: BusInfoDetector(model: s2, config: d2cfg))
-        manager       = WorkflowManager()
     }
 
     // MARK: Public API
@@ -97,14 +95,14 @@ public final class BusApproachTracker {
 
         // Stage 1 — detection
         var t0 = CFAbsoluteTimeGetCurrent()
-        let detectionAny = AnyFlow(detectionFlow)
-        let concurrent = await manager.runConcurrent(flows: [detectionAny], input: frame)
-        flowTimings.append((detectionFlow.id, (CFAbsoluteTimeGetCurrent() - t0) * 1000))
-
-        guard let detOut = concurrent.get(BusDetectionFlow.Output.self, for: detectionFlow.id) else {
+        let detOut: BusDetectionFlow.Output
+        do {
+            detOut = try await detectionFlow.run(input: frame)
+        } catch {
             let totalMs = (CFAbsoluteTimeGetCurrent() - workflowStart) * 1000
             return ([], TimingInfo(flowTimings: flowTimings, totalMs: totalMs))
         }
+        flowTimings.append((detectionFlow.id, (CFAbsoluteTimeGetCurrent() - t0) * 1000))
 
         // Stage 2 — tracking
         t0 = CFAbsoluteTimeGetCurrent()
