@@ -37,6 +37,7 @@ final class CIImageRecorder {
     private var finished = false
     private var frameCount: Int64 = 0
     private var didAppendAnyFrame = false
+    private var lastAppendTime: CFAbsoluteTime = 0
 
     init(
         size: CGSize,
@@ -104,6 +105,13 @@ final class CIImageRecorder {
     }
 
     func append(_ image: CIImage) throws {
+        // Throttle to target fps so cameras delivering at higher rates don't
+        // produce sped-up video.
+        let now = CFAbsoluteTimeGetCurrent()
+        let minInterval = 1.0 / CFAbsoluteTime(fps)
+        guard frameCount == 0 || (now - lastAppendTime) >= minInterval else { return }
+        lastAppendTime = now
+
         let t = CMTime(value: frameCount, timescale: fps)
         try append(image, at: t)
         frameCount += 1
