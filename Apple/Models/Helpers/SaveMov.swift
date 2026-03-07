@@ -1,8 +1,10 @@
 import AVFoundation
 import CoreGraphics
+import CoreImage
+import CoreVideo
 import Photos
 
-final class CGImageVideoRecorder {
+final class CVImageBufferRecorder {
 
     enum RecorderError: Error {
         case alreadyStarted
@@ -18,20 +20,16 @@ final class CGImageVideoRecorder {
         case photoSaveFailed(underlying: Error?)
     }
 
-    // MARK: Public config
     let fps: Int32
     let fileType: AVFileType
     let codec: AVVideoCodecType
     let frameSize: CGSize
 
-    /// Where the .mov is written before importing into Photos.
     var outputDirectory: URL
-
-    /// The URL created on the most recent start().
     private(set) var currentOutputURL: URL?
 
-    // MARK: Private
     private let queue = DispatchQueue(label: "CGImageVideoRecorder.queue")
+    private let ciContext = CIContext()
 
     private var writer: AVAssetWriter?
     private var input: AVAssetWriterInput?
@@ -41,11 +39,13 @@ final class CGImageVideoRecorder {
     private var frameCount: Int64 = 0
     private var didAppendAnyFrame = false
 
-    init(size: CGSize,
-         fps: Int32 = 30,
-         fileType: AVFileType = .mov,
-         codec: AVVideoCodecType = .h264,
-         outputDirectory: URL = FileManager.default.temporaryDirectory) {
+    init(
+        size: CGSize,
+        fps: Int32 = 30,
+        fileType: AVFileType = .mov,
+        codec: AVVideoCodecType = .h264,
+        outputDirectory: URL = FileManager.default.temporaryDirectory
+    ) {
         self.frameSize = size
         self.fps = fps
         self.fileType = fileType
@@ -53,7 +53,6 @@ final class CGImageVideoRecorder {
         self.outputDirectory = outputDirectory
     }
 
-    /// Creates a new file like MEyesVideo20260219142530.mov (timestamp at start time).
     func start() throws {
         try queue.sync {
             guard writer == nil else { throw RecorderError.alreadyStarted }
@@ -70,7 +69,7 @@ final class CGImageVideoRecorder {
             let settings: [String: Any] = [
                 AVVideoCodecKey: codec,
                 AVVideoWidthKey: Int(frameSize.width),
-                AVVideoHeightKey: Int(frameSize.height),
+                AVVideoHeightKey: Int(frameSize.height)
             ]
 
             let i = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
@@ -87,10 +86,11 @@ final class CGImageVideoRecorder {
                 kCVPixelBufferCGImageCompatibilityKey as String: true
             ]
 
-            let a = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: i,
-                                                        sourcePixelBufferAttributes: pixelAttrs)
+            let a = AVAssetWriterInputPixelBufferAdaptor(
+                assetWriterInput: i,
+                sourcePixelBufferAttributes: pixelAttrs
+            )
 
-            // Start immediately at t=0 (simplifies restarts; avoids “never started” edge cases)
             w.startWriting()
             w.startSession(atSourceTime: .zero)
 
@@ -104,28 +104,29 @@ final class CGImageVideoRecorder {
         }
     }
 
-    /// Append a frame at fixed FPS timeline (0, 1/fps, 2/fps, ...)
-    func append(_ image: CGImage) throws {
+    func append(_ imageBuffer: CVImageBuffer) throws {
         let t = CMTime(value: frameCount, timescale: fps)
-        try append(image, at: t)
+        try append(imageBuffer, at: t)
         frameCount += 1
     }
 
-    /// Append a frame at an explicit time.
-    func append(_ image: CGImage, at time: CMTime) throws {
+    func append(_ imageBuffer: CVImageBuffer, at time: CMTime) throws {
         try queue.sync {
             guard let w = writer, let i = input, let a = adaptor else {
                 throw RecorderError.notStarted
             }
             guard !finished else { return }
 
-            let gotSize = CGSize(width: image.width, height: image.height)
+            let gotSize = CGSize(
+                width: CVPixelBufferGetWidth(imageBuffer),
+                height: CVPixelBufferGetHeight(imageBuffer)
+            )
+
             if gotSize != frameSize {
                 throw RecorderError.invalidImageSize(expected: frameSize, got: gotSize)
             }
 
             guard i.isReadyForMoreMediaData else {
-                // Drop frame for debug recording; if you prefer “no drops”, tell me and I’ll change this.
                 return
             }
 
@@ -133,46 +134,22 @@ final class CGImageVideoRecorder {
                 throw RecorderError.missingPixelBufferPool
             }
 
-            var pbOut: CVPixelBuffer?
-            let status = CVPixelBufferPoolCreatePixelBuffer(nil, pool, &pbOut)
-            guard status == kCVReturnSuccess, let pb = pbOut else {
+            var outputBufferOpt: CVPixelBuffer?
+            let status = CVPixelBufferPoolCreatePixelBuffer(nil, pool, &outputBufferOpt)
+            guard status == kCVReturnSuccess, let outputBuffer = outputBufferOpt else {
                 throw RecorderError.failedToCreatePixelBuffer
             }
 
-            CVPixelBufferLockBaseAddress(pb, [])
-            defer { CVPixelBufferUnlockBaseAddress(pb, []) }
+            let ciImage = CIImage(cvImageBuffer: imageBuffer)
 
-            guard let base = CVPixelBufferGetBaseAddress(pb) else {
-                throw RecorderError.failedToCreatePixelBuffer
-            }
+            ciContext.render(
+                ciImage,
+                to: outputBuffer,
+                bounds: CGRect(origin: .zero, size: frameSize),
+                colorSpace: CGColorSpaceCreateDeviceRGB()
+            )
 
-            let bytesPerRow = CVPixelBufferGetBytesPerRow(pb)
-            let colorSpace = CGColorSpaceCreateDeviceRGB()
-
-            let bitmapInfo = CGBitmapInfo.byteOrder32Little.rawValue
-                | CGImageAlphaInfo.premultipliedFirst.rawValue
-
-            guard let ctx = CGContext(
-                data: base,
-                width: Int(frameSize.width),
-                height: Int(frameSize.height),
-                bitsPerComponent: 8,
-                bytesPerRow: bytesPerRow,
-                space: colorSpace,
-                bitmapInfo: bitmapInfo
-            ) else {
-                throw RecorderError.failedToCreatePixelBuffer
-            }
-
-            ctx.clear(CGRect(origin: .zero, size: frameSize))
-
-            // If your output is vertically flipped, uncomment:
-            // ctx.translateBy(x: 0, y: frameSize.height)
-            // ctx.scaleBy(x: 1, y: -1)
-
-            ctx.draw(image, in: CGRect(origin: .zero, size: frameSize))
-
-            let ok = a.append(pb, withPresentationTime: time)
+            let ok = a.append(outputBuffer, withPresentationTime: time)
             if !ok {
                 throw RecorderError.writerFailed(underlying: w.error)
             }
@@ -181,14 +158,14 @@ final class CGImageVideoRecorder {
         }
     }
 
-    /// Stops writing and saves the resulting video into Photos.
     func stopAndSaveToPhotos(completion: @escaping (Result<Void, Error>) -> Void) {
         queue.async {
             guard let w = self.writer,
                   let i = self.input,
-                  let url = self.currentOutputURL
-            else {
-                DispatchQueue.main.async { completion(.failure(RecorderError.notStarted)) }
+                  let url = self.currentOutputURL else {
+                DispatchQueue.main.async {
+                    completion(.failure(RecorderError.notStarted))
+                }
                 return
             }
 
@@ -201,7 +178,6 @@ final class CGImageVideoRecorder {
             i.markAsFinished()
 
             w.finishWriting {
-                // Release writer state ASAP after finishing
                 self.queue.async {
                     self.writer = nil
                     self.input = nil
@@ -226,8 +202,6 @@ final class CGImageVideoRecorder {
             }
         }
     }
-
-    // MARK: Photos saving
 
     private func saveVideoToPhotos(_ url: URL, completion: @escaping (Result<Void, Error>) -> Void) {
         requestAddOnlyPhotoAuth { status in
@@ -270,9 +244,6 @@ final class CGImageVideoRecorder {
         }
     }
 
-    // MARK: Filename helpers
-
-    /// "yyyyMMddHHmmss" (year, month, day, hour, minute, seconds)
     private static func timestampString(from date: Date) -> String {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
@@ -280,7 +251,6 @@ final class CGImageVideoRecorder {
         return f.string(from: date)
     }
 
-    /// If MEyesVideo<ts>.mov exists, returns MEyesVideo<ts>_1.mov, etc.
     private static func makeUniqueURL(in dir: URL, baseName: String, ext: String) -> URL {
         let fm = FileManager.default
         var candidate = dir.appendingPathComponent("\(baseName).\(ext)")

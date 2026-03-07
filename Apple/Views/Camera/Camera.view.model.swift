@@ -9,6 +9,7 @@ import SwiftUI
 internal import Combine
 import AVFoundation
 import CoreGraphics
+import CoreVideo
 
 /// Describes what the camera view should display in its action area.
 enum CameraAction {
@@ -29,7 +30,7 @@ class CameraViewModel: ObservableObject {
   private let speaker = Speaker()
 
   #if DevDebug
-  private var recorder: CGImageVideoRecorder?
+  private var recorder: CVImageBufferRecorder?
   private var lastFrameTime: CFAbsoluteTime = 0
   private var currentFPS: Double = 0
   private var lastTiming: BusApproachTracker.TimingInfo?
@@ -43,7 +44,7 @@ class CameraViewModel: ObservableObject {
     self.tracker = BusApproachTracker(stage1Model: stage1, stage2Model: stage2)
   }
   
-  func processFrame(_ frame: CGImage) async {
+  func processFrame(_ frame: CVImageBuffer) async {
     guard let tracker else { return }
 
     #if DevDebug
@@ -89,15 +90,9 @@ class CameraViewModel: ObservableObject {
     
     switch state {
       case .connected, .stopped:
-        #if DevDebug
-        startRecording()
-        #endif
         await device.start()
       case .started:
         await device.stop()
-        #if DevDebug
-        stopRecording()
-        #endif
       default:
         break
     }
@@ -109,7 +104,7 @@ class CameraViewModel: ObservableObject {
   private func startRecording() {
     // Use a common frame size; recorder will skip mismatched frames
     let size = CGSize(width: 1280, height: 720)
-    recorder = CGImageVideoRecorder(size: size)
+    recorder = CVImageBufferRecorder(size: size)
     do {
       try recorder?.start()
       print("[DevDebug] Recording started")
@@ -133,74 +128,6 @@ class CameraViewModel: ObservableObject {
     }
     recorder = nil
   }
-
-  // MARK: - Debug: Overlay
-
-  func overlayFrame(_ frame: CGImage) -> CGImage {
-    let w = frame.width
-    let h = frame.height
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-
-    guard let ctx = CGContext(
-      data: nil, width: w, height: h,
-      bitsPerComponent: 8, bytesPerRow: 0,
-      space: colorSpace, bitmapInfo: bitmapInfo
-    ) else { return frame }
-
-    // Draw the original frame
-    ctx.draw(frame, in: CGRect(x: 0, y: 0, width: w, height: h))
-
-    // Build overlay text lines
-    var lines: [String] = []
-    lines.append(String(format: "FPS: %.1f", currentFPS))
-
-    if let timing = lastTiming {
-      for (name, ms) in timing.flowTimings {
-        lines.append(String(format: "%@: %.1f ms", name, ms))
-      }
-      lines.append(String(format: "workflow: %.1f ms", timing.totalMs))
-    }
-
-    // Text rendering setup — use bottom-left quarter as dead area
-    let fontSize = CGFloat(h) / 18  // large enough to fill the quarter
-    let lineHeight = fontSize * 1.3
-    let margin = CGFloat(h) * 0.02
-
-    // Semi-transparent background behind text
-    let textBlockHeight = lineHeight * CGFloat(lines.count) + margin * 2
-    let textBlockWidth = CGFloat(w) / 2
-    ctx.setFillColor(red: 0, green: 0, blue: 0, alpha: 0.6)
-    ctx.fill(CGRect(x: 0, y: 0, width: textBlockWidth, height: textBlockHeight))
-
-    // Draw text lines (CGContext y=0 is bottom)
-    let attrs: [NSAttributedString.Key: Any] = [
-      .font: UIFont.monospacedSystemFont(ofSize: fontSize, weight: .bold),
-      .foregroundColor: UIColor.green
-    ]
-
-    UIGraphicsPushContext(ctx)
-
-    // Flip context for UIKit text drawing
-    ctx.saveGState()
-    ctx.textMatrix = .identity
-    ctx.translateBy(x: 0, y: CGFloat(h))
-    ctx.scaleBy(x: 1, y: -1)
-
-    // Text starts at bottom-left: in flipped coords that's near y = h - margin
-    let startY = CGFloat(h) - textBlockHeight + margin
-
-    for (i, line) in lines.enumerated() {
-      let y = startY + CGFloat(i) * lineHeight
-      let str = NSAttributedString(string: line, attributes: attrs)
-      str.draw(at: CGPoint(x: margin, y: y))
-    }
-
-    ctx.restoreGState()
-    UIGraphicsPopContext()
-
-    return ctx.makeImage() ?? frame
-  }
   #endif
   
   func startObservingState() async {
@@ -211,6 +138,14 @@ class CameraViewModel: ObservableObject {
       for await state in await camera.stateUpdates() {
         self.state = state
         self.action = self.actionForState(state)
+        #if DevDebug
+        switch state {
+          case .started:
+            startRecording()
+          default:
+            stopRecording()
+        }
+        #endif
       }
     }
   }

@@ -41,6 +41,7 @@
 		B3D0000100000005A0000005 /* BusTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000005A0000005 /* BusTracker.swift */; };
 		B3D0000100000006A0000006 /* BusInfoDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0000200000006A0000006 /* BusInfoDetector.swift */; };
 		B3F599332F59C7A80013A0A8 /* Camera.registration.meta.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F599322F59C7A80013A0A8 /* Camera.registration.meta.swift */; };
+		B3F599412F5B6AD10013A0A8 /* UIImage.extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F599402F5B6AC60013A0A8 /* UIImage.extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 		B3D0000200000005A0000005 /* BusTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusTracker.swift; sourceTree = "<group>"; };
 		B3D0000200000006A0000006 /* BusInfoDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusInfoDetector.swift; sourceTree = "<group>"; };
 		B3F599322F59C7A80013A0A8 /* Camera.registration.meta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.registration.meta.swift; sourceTree = "<group>"; };
+		B3F599402F5B6AC60013A0A8 /* UIImage.extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -301,6 +303,7 @@
 		B3BCCC022F51AC310085FC33 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				B3F599402F5B6AC60013A0A8 /* UIImage.extension.swift */,
 				B3BCCC032F51B3830085FC33 /* AVCaptureDevice.extensions.swift */,
 			);
 			path = Extensions;
@@ -493,6 +496,7 @@
 				B3AF000100000001AF000001 /* BusDetectionFlow.swift in Sources */,
 				B3AF000100000002AF000002 /* BusTrackingFlow.swift in Sources */,
 				B3AF000100000003AF000003 /* BusInfoFlow.swift in Sources */,
+				B3F599412F5B6AD10013A0A8 /* UIImage.extension.swift in Sources */,
 				B3BA000100000001BA000001 /* BusApproachTracker.swift in Sources */,
 				B30E1C922F56F908006F2FA1 /* yolo26sINT8512x896.mlpackage in Sources */,
 				B30E1C982F56F932006F2FA1 /* SaveMov.swift in Sources */,
@@ -686,6 +690,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG DevDebug $(inherited)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;

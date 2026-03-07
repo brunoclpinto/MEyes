@@ -30,7 +30,7 @@ private final class MetaStreamBridge: @unchecked Sendable {
   func setup(
     wearables: WearablesInterface,
     onState: @escaping (StreamSessionState) -> Void,
-    onFrame: @escaping (CGImage?) -> Void,
+    onFrame: @escaping (CVImageBuffer) -> Void,
     onError: @escaping () -> Void
   ) {
     let selector = AutoDeviceSelector(wearables: wearables)
@@ -48,7 +48,13 @@ private final class MetaStreamBridge: @unchecked Sendable {
         let now = CFAbsoluteTimeGetCurrent()
         guard now - self.lastFrameTime >= minInterval else { return }
         self.lastFrameTime = now
-        onFrame(videoFrame.makeUIImage()?.toCGImage())
+        guard
+          let image = videoFrame.makeUIImage(),
+          let imageBuffer = image.imageBuffer()
+        else {
+          return
+        }
+        onFrame(imageBuffer)
       }
     }
     errorToken = session.errorPublisher.listen { _ in
@@ -93,7 +99,7 @@ public actor CameraMeta: Camera {
       .nameOrId() ?? String(localized: "Unnamed Meta Wearable")
   }
 
-  public func connect(nextFrame: @escaping (CGImage?) -> Void) async {
+  public func connect(nextFrame: @escaping (CVImageBuffer) -> Void) async {
     switch state {
       case
           .connected,

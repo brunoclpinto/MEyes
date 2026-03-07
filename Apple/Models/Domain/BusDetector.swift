@@ -1,5 +1,5 @@
 import CoreImage
-import CoreGraphics
+import CoreVideo
 
 // MARK: - BusDetection
 
@@ -44,13 +44,13 @@ public final class BusDetector {
     }
 
     /// Run Stage1 on `frame`. Returns detected buses sorted by score descending.
-    public func detect(frame: CGImage) throws -> (detections: [BusDetection], meta: LetterboxMeta) {
-        let srcW = Double(frame.width)
-        let srcH = Double(frame.height)
+    public func detect(frame: CVImageBuffer) throws -> (detections: [BusDetection], meta: LetterboxMeta) {
+        let srcW = Double(CVPixelBufferGetWidth(frame))
+        let srcH = Double(CVPixelBufferGetHeight(frame))
         let dstW = Double(config.detectorW)
         let dstH = Double(config.detectorH)
 
-        let originalCI = CIImage(cgImage: frame)
+        let originalCI = CIImage(cvImageBuffer: frame)
         let (letterboxed, meta) = ImageLetterboxer.letterboxWithMeta(
             originalCI, srcW: srcW, srcH: srcH, dstW: dstW, dstH: dstH
         )

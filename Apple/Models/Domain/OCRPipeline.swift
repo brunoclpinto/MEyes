@@ -68,8 +68,8 @@ public enum OCRPipeline {
         return CIContext()
     }()
 
-    public static func ocrCGImage(
-        _ cgInput: CGImage,
+    public static func ocrCIImage(
+        _ ciInput: CIImage,
         preset: OCRPreset,
         recognitionLanguages: [String]?,
         usesLanguageCorrection: Bool,
@@ -79,7 +79,7 @@ public enum OCRPipeline {
         try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
-                    var img = CIImage(cgImage: cgInput)
+                    var img = ciInput
 
                     // 1) grayscale
                     img = img.applyingFilter("CIColorControls", parameters: [

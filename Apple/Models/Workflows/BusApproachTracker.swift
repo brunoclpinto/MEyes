@@ -1,5 +1,5 @@
 import CoreImage
-import CoreGraphics
+import CoreVideo
 import Vision
 
 // MARK: - BusApproachTracker
@@ -47,7 +47,7 @@ public final class BusApproachTracker {
     private let detectionFlow: BusDetectionFlow
     private let trackingFlow: BusTrackingFlow
     private let infoFlow: BusInfoFlow
-    private let manager: WorkflowManager<CGImage>
+    private let manager: WorkflowManager<CVImageBuffer>
     private let stage1Origin: YOLOModel.BoxOrigin
     private let detectorH: Double
 
@@ -86,7 +86,7 @@ public final class BusApproachTracker {
     // MARK: Public API
 
     public func processFrame(
-        _ frame: CGImage,
+        _ frame: CVImageBuffer,
         ocrPreset: OCRPreset = .default,
         recognitionLanguages: [String]? = ["pt-PT"],
         usesLanguageCorrection: Bool = false,
@@ -120,9 +120,9 @@ public final class BusApproachTracker {
 
         // Stage 3 — info detection per approaching bus
         t0 = CFAbsoluteTimeGetCurrent()
-        let originalCI = CIImage(cgImage: frame)
-        let originalW = Double(frame.width)
-        let originalH = Double(frame.height)
+        let originalCI = CIImage(cvImageBuffer: frame)
+        let originalW = Double(CVPixelBufferGetWidth(frame))
+        let originalH = Double(CVPixelBufferGetHeight(frame))
 
         var results: [BusResult] = []
 
@@ -180,38 +180,5 @@ public final class BusApproachTracker {
     }
 }
 
-// MARK: - Optional adapters (UIImage / NSImage -> CGImage)
 
-#if canImport(UIKit)
-import UIKit
 
-public extension UIImage {
-    func toCGImage() -> CGImage? {
-        if let cg = self.cgImage { return cg }
-        if let ci = self.ciImage {
-            return CIContext().createCGImage(ci, from: ci.extent.integral)
-        }
-        let w = Int(size.width), h = Int(size.height)
-        guard w > 0, h > 0 else { return nil }
-        let cs = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-        guard let ctx = CGContext(data: nil, width: w, height: h,
-                                  bitsPerComponent: 8, bytesPerRow: 0,
-                                  space: cs, bitmapInfo: bitmapInfo) else { return nil }
-        UIGraphicsPushContext(ctx); defer { UIGraphicsPopContext() }
-        self.draw(in: CGRect(x: 0, y: 0, width: w, height: h))
-        return ctx.makeImage()
-    }
-}
-#endif
-
-#if canImport(AppKit)
-import AppKit
-
-public extension NSImage {
-    func toCGImage() -> CGImage? {
-        var rect = CGRect(origin: .zero, size: self.size)
-        return self.cgImage(forProposedRect: &rect, context: nil, hints: nil)
-    }
-}
-#endif

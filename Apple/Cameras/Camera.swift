@@ -110,7 +110,7 @@ public protocol Camera: Actor {
   var name: String {get}
   var zoom: String {get}
   
-  func connect(nextFrame: @escaping (CGImage?) -> Void) async
+  func connect(nextFrame: @escaping (CVImageBuffer) -> Void) async
   func disconnect() async
   func start() async
   func stop() async

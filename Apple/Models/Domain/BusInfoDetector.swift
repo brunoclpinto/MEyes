@@ -81,16 +81,12 @@ public final class BusInfoDetector {
             busCropCI, srcW: busCropW, srcH: busCropH, boxTopLeft: infoBox
         )
 
-        guard infoCropCI.extent.width >= 2, infoCropCI.extent.height >= 2,
-              let infoCG = ImageLetterboxer.ciContext.createCGImage(
-                  infoCropCI, from: infoCropCI.extent.integral
-              )
-        else {
+        guard infoCropCI.extent.width >= 2, infoCropCI.extent.height >= 2 else {
             return BusInfoResult(ocrText: "", infoBoxOriginal: infoBox)
         }
 
-        let ocrText = try await OCRPipeline.ocrCGImage(
-            infoCG, preset: ocrPreset,
+        let ocrText = try await OCRPipeline.ocrCIImage(
+            infoCropCI, preset: ocrPreset,
             recognitionLanguages: recognitionLanguages,
             usesLanguageCorrection: usesLanguageCorrection,
             recognitionLevel: recognitionLevel
