@@ -8,8 +8,7 @@
 import SwiftUI
 internal import Combine
 import AVFoundation
-import CoreGraphics
-import CoreVideo
+import CoreImage
 
 /// Describes what the camera view should display in its action area.
 enum CameraAction {
@@ -30,7 +29,7 @@ class CameraViewModel: ObservableObject {
   private let speaker = Speaker()
 
   #if DevDebug
-  private var recorder: CVImageBufferRecorder?
+  private var recorder: CIImageRecorder?
   private var lastFrameTime: CFAbsoluteTime = 0
   private var currentFPS: Double = 0
   private var lastTiming: BusApproachTracker.TimingInfo?
@@ -44,7 +43,7 @@ class CameraViewModel: ObservableObject {
     self.tracker = BusApproachTracker(stage1Model: stage1, stage2Model: stage2)
   }
   
-  func processFrame(_ frame: CVImageBuffer) async {
+  func processFrame(_ frame: CIImage) async {
     guard let tracker else { return }
 
     #if DevDebug
@@ -104,7 +103,7 @@ class CameraViewModel: ObservableObject {
   private func startRecording() {
     // Use a common frame size; recorder will skip mismatched frames
     let size = CGSize(width: 1280, height: 720)
-    recorder = CVImageBufferRecorder(size: size)
+    recorder = CIImageRecorder(size: size)
     do {
       try recorder?.start()
       print("[DevDebug] Recording started")

@@ -5,7 +5,7 @@
 //  Created by Bruno Pinto on 05/03/2026.
 //
 
-import CoreVideo
+import CoreImage
 import MWDATCore
 
 /// A placeholder camera that drives the Meta Wearables registration flow.
@@ -29,7 +29,7 @@ public actor CameraMetaRegistration: Camera {
 
   // MARK: - Camera protocol
 
-  public func connect(nextFrame: @escaping (CVImageBuffer) -> Void) async {
+  public func connect(nextFrame: @escaping (CIImage) -> Void) async {
     setState(.connected)
   }
 

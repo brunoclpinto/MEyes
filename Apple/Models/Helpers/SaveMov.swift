@@ -1,10 +1,9 @@
 import AVFoundation
-import CoreGraphics
 import CoreImage
 import CoreVideo
 import Photos
 
-final class CVImageBufferRecorder {
+final class CIImageRecorder {
 
     enum RecorderError: Error {
         case alreadyStarted
@@ -28,7 +27,7 @@ final class CVImageBufferRecorder {
     var outputDirectory: URL
     private(set) var currentOutputURL: URL?
 
-    private let queue = DispatchQueue(label: "CGImageVideoRecorder.queue")
+    private let queue = DispatchQueue(label: "CIImageRecorder.queue")
     private let ciContext = CIContext()
 
     private var writer: AVAssetWriter?
@@ -104,27 +103,18 @@ final class CVImageBufferRecorder {
         }
     }
 
-    func append(_ imageBuffer: CVImageBuffer) throws {
+    func append(_ image: CIImage) throws {
         let t = CMTime(value: frameCount, timescale: fps)
-        try append(imageBuffer, at: t)
+        try append(image, at: t)
         frameCount += 1
     }
 
-    func append(_ imageBuffer: CVImageBuffer, at time: CMTime) throws {
+    func append(_ image: CIImage, at time: CMTime) throws {
         try queue.sync {
             guard let w = writer, let i = input, let a = adaptor else {
                 throw RecorderError.notStarted
             }
             guard !finished else { return }
-
-            let gotSize = CGSize(
-                width: CVPixelBufferGetWidth(imageBuffer),
-                height: CVPixelBufferGetHeight(imageBuffer)
-            )
-
-            if gotSize != frameSize {
-                throw RecorderError.invalidImageSize(expected: frameSize, got: gotSize)
-            }
 
             guard i.isReadyForMoreMediaData else {
                 return
@@ -140,10 +130,8 @@ final class CVImageBufferRecorder {
                 throw RecorderError.failedToCreatePixelBuffer
             }
 
-            let ciImage = CIImage(cvImageBuffer: imageBuffer)
-
             ciContext.render(
-                ciImage,
+                image,
                 to: outputBuffer,
                 bounds: CGRect(origin: .zero, size: frameSize),
                 colorSpace: CGColorSpaceCreateDeviceRGB()

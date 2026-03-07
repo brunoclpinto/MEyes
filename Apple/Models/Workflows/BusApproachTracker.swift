@@ -1,5 +1,4 @@
 import CoreImage
-import CoreVideo
 import Vision
 
 // MARK: - BusApproachTracker
@@ -47,7 +46,7 @@ public final class BusApproachTracker {
     private let detectionFlow: BusDetectionFlow
     private let trackingFlow: BusTrackingFlow
     private let infoFlow: BusInfoFlow
-    private let manager: WorkflowManager<CVImageBuffer>
+    private let manager: WorkflowManager<CIImage>
     private let stage1Origin: YOLOModel.BoxOrigin
     private let detectorH: Double
 
@@ -86,7 +85,7 @@ public final class BusApproachTracker {
     // MARK: Public API
 
     public func processFrame(
-        _ frame: CVImageBuffer,
+        _ frame: CIImage,
         ocrPreset: OCRPreset = .default,
         recognitionLanguages: [String]? = ["pt-PT"],
         usesLanguageCorrection: Bool = false,
@@ -120,9 +119,9 @@ public final class BusApproachTracker {
 
         // Stage 3 — info detection per approaching bus
         t0 = CFAbsoluteTimeGetCurrent()
-        let originalCI = CIImage(cvImageBuffer: frame)
-        let originalW = Double(CVPixelBufferGetWidth(frame))
-        let originalH = Double(CVPixelBufferGetHeight(frame))
+        let originalCI = frame
+        let originalW = Double(frame.extent.width)
+        let originalH = Double(frame.extent.height)
 
         var results: [BusResult] = []
 
