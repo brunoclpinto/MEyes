@@ -61,6 +61,18 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		B38C391F2F5ECD5D006F2291 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		B304ED4E2F4DA8A0002E01E7 /* Camera.manager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.manager.swift; sourceTree = "<group>"; };
 		B304ED522F4DA934002E01E7 /* Camera.controller.iphone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.controller.iphone.swift; sourceTree = "<group>"; };
@@ -75,6 +87,7 @@
 		B32C5F8B2F4CE5BB00DC01E1 /* HackEyeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackEyeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B33EDDF02F51FEB100891D36 /* Camera.view.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.view.swift; sourceTree = "<group>"; };
 		B33EDDF42F51FEEE00891D36 /* Camera.view.model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.view.model.swift; sourceTree = "<group>"; };
+		B38C39212F5ECD5D006F2291 /* HackEye-cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "HackEye-cli"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3AE000200000001AE000001 /* Flow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Flow.swift; sourceTree = "<group>"; };
 		B3AE000200000002AE000002 /* WorkflowOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowOutput.swift; sourceTree = "<group>"; };
 		B3AE000200000003AE000003 /* WorkflowGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowGraph.swift; sourceTree = "<group>"; };
@@ -128,6 +141,11 @@
 			path = HackEyeUITests;
 			sourceTree = "<group>";
 		};
+		B38C39222F5ECD5D006F2291 /* HackEye-cli */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "HackEye-cli";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +167,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B32C5F882F4CE5BB00DC01E1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B38C391E2F5ECD5D006F2291 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -238,6 +263,7 @@
 				B32C5F762F4CE5B800DC01E1 /* HackEye */,
 				B32C5F842F4CE5BB00DC01E1 /* HackEyeTests */,
 				B32C5F8E2F4CE5BB00DC01E1 /* HackEyeUITests */,
+				B38C39222F5ECD5D006F2291 /* HackEye-cli */,
 				B32C5F752F4CE5B800DC01E1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -248,6 +274,7 @@
 				B32C5F742F4CE5B800DC01E1 /* HackEye.app */,
 				B32C5F812F4CE5BB00DC01E1 /* HackEyeTests.xctest */,
 				B32C5F8B2F4CE5BB00DC01E1 /* HackEyeUITests.xctest */,
+				B38C39212F5ECD5D006F2291 /* HackEye-cli */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -396,6 +423,28 @@
 			productReference = B32C5F8B2F4CE5BB00DC01E1 /* HackEyeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		B38C39202F5ECD5D006F2291 /* HackEye-cli */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B38C39272F5ECD5D006F2291 /* Build configuration list for PBXNativeTarget "HackEye-cli" */;
+			buildPhases = (
+				B38C391D2F5ECD5D006F2291 /* Sources */,
+				B38C391E2F5ECD5D006F2291 /* Frameworks */,
+				B38C391F2F5ECD5D006F2291 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B38C39222F5ECD5D006F2291 /* HackEye-cli */,
+			);
+			name = "HackEye-cli";
+			packageProductDependencies = (
+			);
+			productName = "HackEye-cli";
+			productReference = B38C39212F5ECD5D006F2291 /* HackEye-cli */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -403,7 +452,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
+				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					B32C5F732F4CE5B800DC01E1 = {
@@ -416,6 +465,9 @@
 					B32C5F8A2F4CE5BB00DC01E1 = {
 						CreatedOnToolsVersion = 26.0.1;
 						TestTargetID = B32C5F732F4CE5B800DC01E1;
+					};
+					B38C39202F5ECD5D006F2291 = {
+						CreatedOnToolsVersion = 26.3;
 					};
 				};
 			};
@@ -439,6 +491,7 @@
 				B32C5F732F4CE5B800DC01E1 /* HackEye */,
 				B32C5F802F4CE5BB00DC01E1 /* HackEyeTests */,
 				B32C5F8A2F4CE5BB00DC01E1 /* HackEyeUITests */,
+				B38C39202F5ECD5D006F2291 /* HackEye-cli */,
 			);
 		};
 /* End PBXProject section */
@@ -515,6 +568,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B32C5F872F4CE5BB00DC01E1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B38C391D2F5ECD5D006F2291 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -823,6 +883,36 @@
 			};
 			name = Release;
 		};
+		B38C39252F5ECD5D006F2291 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B38C39262F5ECD5D006F2291 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Z2C57S2YDD;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -858,6 +948,15 @@
 			buildConfigurations = (
 				B32C5F9C2F4CE5BB00DC01E1 /* Debug */,
 				B32C5F9D2F4CE5BB00DC01E1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B38C39272F5ECD5D006F2291 /* Build configuration list for PBXNativeTarget "HackEye-cli" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B38C39252F5ECD5D006F2291 /* Debug */,
+				B38C39262F5ECD5D006F2291 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
