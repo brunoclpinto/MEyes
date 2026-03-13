@@ -5,9 +5,10 @@
 //  Created by Bruno Pinto on 25/02/2026.
 //
 
-import UIKit
+import CoreImage
 import MWDATCore
 import MWDATCamera
+internal import UIKit
 
 // MARK: - MetaStreamBridge
 

@@ -5,7 +5,7 @@
 //  Created by Bruno Pinto on 24/02/2026.
 //
 
-import UIKit
+internal import UIKit
 import MWDATCore
 
 public actor CameraControllerMeta: CameraController {
