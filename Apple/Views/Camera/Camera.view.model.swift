@@ -89,19 +89,25 @@ class CameraViewModel: ObservableObject {
       lastTiming = timing
       #endif
 
+      // Collect announcements: buses with a number first, ID-only second.
+      var withNumber: [String] = []
+      var withoutNumber: [String] = []
+
       for bus in results {
         let number = bus.ocrText.leadingNaturalNumber()
         let busID = bus.id
-        let  busTracked = buses.first(where: { bus.id == $0.busID})
+        let busTracked = buses.first(where: { bus.id == $0.busID })
+
         if busTracked == nil {
           buses.append(BusIDTracker(busID: busID, number: number))
           if number.isEmpty {
-            speaker.speak("\(busID)")
+            withoutNumber.append(busID)
           } else {
-            speaker.speak("\(busID): \(number)")
+            withNumber.append("\(busID): \(number)")
           }
           continue
         }
+
         guard
           !number.isEmpty,
           let busTracked,
@@ -110,7 +116,12 @@ class CameraViewModel: ObservableObject {
           continue
         }
         busTracked.number = number
-        speaker.speak("\(busID): \(number)")
+        withNumber.append("\(busID): \(number)")
+      }
+
+      let announcements = withNumber + withoutNumber
+      if !announcements.isEmpty {
+        speaker.speak(announcements.joined(separator: ". "))
       }
       
       // Record frame with overlay burned in

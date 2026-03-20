@@ -7,6 +7,7 @@
 
 import AVFoundation
 
+@MainActor
 final class Speaker {
     private let synth = AVSpeechSynthesizer()
 
@@ -15,7 +16,6 @@ final class Speaker {
                rate: Float = AVSpeechUtteranceDefaultSpeechRate,
                pitch: Float = 1.0,
                volume: Float = 1.0) {
-      self.stop()
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: language)
         utterance.rate = rate
