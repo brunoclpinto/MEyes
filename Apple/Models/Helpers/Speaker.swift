@@ -11,13 +11,27 @@ import AVFoundation
 final class Speaker {
     private let synth = AVSpeechSynthesizer()
 
+    /// Resolved once and cached. Picks the best quality voice available
+    /// for the current system language (premium > enhanced > default).
+    private lazy var resolvedVoice: AVSpeechSynthesisVoice? = {
+        let langCode = AVSpeechSynthesisVoice.currentLanguageCode()
+        let voices = AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language == langCode }
+
+        // Prefer highest quality available
+        return voices.first(where: { $0.quality == .premium })
+            ?? voices.first(where: { $0.quality == .enhanced })
+            ?? voices.first
+            ?? AVSpeechSynthesisVoice(language: langCode)
+    }()
+
     func speak(_ text: String,
-               language: String = "en-US",
                rate: Float = AVSpeechUtteranceDefaultSpeechRate,
                pitch: Float = 1.0,
                volume: Float = 1.0) {
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: language)
+        utterance.prefersAssistiveTechnologySettings = true
+        utterance.voice = resolvedVoice
         utterance.rate = rate
         utterance.pitchMultiplier = pitch
         utterance.volume = volume
