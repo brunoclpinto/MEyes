@@ -1,340 +1,231 @@
-import AVFoundation
 import CoreImage
-import CoreVideo
-import Photos
-internal import UIKit
+import ImageIO
+import Foundation
+import UniformTypeIdentifiers
 
-final class CIImageRecorder {
-  
-  enum RecorderError: Error {
-    case alreadyStarted
-    case notStarted
-    case failedToAddInput
-    case missingPixelBufferPool
-    case failedToCreatePixelBuffer
-    case writerFailed(underlying: Error?)
-    case invalidImageSize(expected: CGSize, got: CGSize)
-    case noFramesAppended
-    
-    case photoPermissionDenied(status: PHAuthorizationStatus)
-    case photoSaveFailed(underlying: Error?)
-  }
-  
-  let fps: Int32
-  let fileType: AVFileType
-  let codec: AVVideoCodecType
-  let frameSize: CGSize
-  
-  var outputDirectory: URL
-  private(set) var currentOutputURL: URL?
-  
-  private let queue = DispatchQueue(label: "CIImageRecorder.queue")
+/// Saves individual HEIC frames to the app's Documents directory with
+/// timing metadata embedded in EXIF and a per-session JSON manifest.
+///
+/// Directory structure:
+/// ```
+/// Documents/HackEye/Session_yyyyMMdd_HHmmss/
+///   frame_000001.heic
+///   frame_000002.heic
+///   session.json
+/// ```
+///
+/// Each HEIC file carries timing data in:
+/// - **EXIF UserComment** — machine-readable JSON
+/// - **TIFF ImageDescription** — human-readable summary (visible in Finder Get Info)
+final class DebugFrameSaver {
+
+  // MARK: - State
+
+  private let queue = DispatchQueue(label: "DebugFrameSaver.queue")
   private let ciContext = CIContext()
-  
-  private var writer: AVAssetWriter?
-  private var input: AVAssetWriterInput?
-  private var adaptor: AVAssetWriterInputPixelBufferAdaptor?
-  
-  private var finished = false
-  private var didAppendAnyFrame = false
+
+  private var sessionDir: URL?
+  private var frameIndex: Int = 0
+  private var manifest: [FrameEntry] = []
   private var startTime: CFAbsoluteTime = 0
-  
-  init(
-    size: CGSize,
-    fps: Int32 = 30,
-    fileType: AVFileType = .mov,
-    codec: AVVideoCodecType = .h264,
-    outputDirectory: URL = FileManager.default.temporaryDirectory
-  ) {
-    self.frameSize = size
-    self.fps = fps
-    self.fileType = fileType
-    self.codec = codec
-    self.outputDirectory = outputDirectory
+  private var sessionStartDate: Date?
+
+  // MARK: - Manifest Types
+
+  private nonisolated struct FrameEntry: Encodable {
+    let filename: String
+    let elapsed: Double
+    let fps: Double
+    let flowTimings: [String: Double]
+    let totalMs: Double
   }
-  
+
+  private nonisolated struct SessionManifest: Encodable {
+    let sessionStart: String
+    let frameCount: Int
+    let frames: [FrameEntry]
+  }
+
+  // MARK: - Lifecycle
+
   func start() {
     queue.async {
-      guard self.writer == nil else { return }
-      
-      let ts = Self.timestampString(from: Date())
-      let baseName = "MEyesVideo\(ts)"
-      let url = Self.makeUniqueURL(in: self.outputDirectory, baseName: baseName, ext: "mov")
-      self.currentOutputURL = url
-      
-      try? FileManager.default.removeItem(at: url)
-      
-      guard let w = try? AVAssetWriter(outputURL: url, fileType: self.fileType) else {
+      self.frameIndex = 0
+      self.manifest = []
+      self.startTime = 0
+      self.sessionStartDate = Date()
+
+      let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+      let hackEyeDir = docs.appendingPathComponent("HackEye", isDirectory: true)
+      let ts = Self.timestampString(from: self.sessionStartDate!)
+      let sessionDir = hackEyeDir.appendingPathComponent("Session_\(ts)", isDirectory: true)
+
+      do {
+        try FileManager.default.createDirectory(at: sessionDir, withIntermediateDirectories: true)
+      } catch {
+        print("[DebugFrameSaver] Failed to create session directory: \(error)")
         return
       }
-      
-      let settings: [String: Any] = [
-        AVVideoCodecKey: self.codec,
-        AVVideoWidthKey: Int(self.frameSize.width),
-        AVVideoHeightKey: Int(self.frameSize.height)
-      ]
-      
-      let i = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
-      i.expectsMediaDataInRealTime = true
-      
-      guard w.canAdd(i) else { return }
-      w.add(i)
-      
-      let pixelAttrs: [String: Any] = [
-        kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA),
-        kCVPixelBufferWidthKey as String: Int(self.frameSize.width),
-        kCVPixelBufferHeightKey as String: Int(self.frameSize.height),
-        kCVPixelBufferCGBitmapContextCompatibilityKey as String: true,
-        kCVPixelBufferCGImageCompatibilityKey as String: true
-      ]
-      
-      let a = AVAssetWriterInputPixelBufferAdaptor(
-        assetWriterInput: i,
-        sourcePixelBufferAttributes: pixelAttrs
-      )
-      
-      w.startWriting()
-      w.startSession(atSourceTime: .zero)
-      
-      self.writer = w
-      self.input = i
-      self.adaptor = a
-      
-      self.finished = false
-      self.didAppendAnyFrame = false
-      self.startTime = 0
+
+      self.sessionDir = sessionDir
+      print("[DebugFrameSaver] Session started: \(sessionDir.path)")
     }
   }
-  
-  func append(
+
+  func appendFrame(
     _ frame: CIImage,
     timing: BusApproachTracker.TimingInfo?,
     currentFPS: Double
   ) {
     queue.async {
-      let image = self.overlayFrame(
-        frame,
-        timing: timing,
-        currentFPS: currentFPS
-      )
+      guard let sessionDir = self.sessionDir else { return }
+
       let now = CFAbsoluteTimeGetCurrent()
-      
-      // Use wall-clock elapsed time as the presentation timestamp
-      // so the video plays back at real-time speed.
       if self.startTime == 0 { self.startTime = now }
       let elapsed = now - self.startTime
-      let t = CMTime(seconds: elapsed, preferredTimescale: 600)
-      self.append(image, at: t)
-    }
-  }
-  
-  func append(_ image: CIImage, at time: CMTime) {
-    queue.async {
-      guard let _ = self.writer, let i = self.input, let a = self.adaptor else {
-        return
+
+      self.frameIndex += 1
+      let filename = String(format: "frame_%06d.heic", self.frameIndex)
+      let fileURL = sessionDir.appendingPathComponent(filename)
+
+      // Build timing dictionaries
+      var flowDict: [String: Double] = [:]
+      if let timing {
+        for (name, ms) in timing.flowTimings {
+          flowDict[name] = ms
+        }
       }
-      guard !self.finished else { return }
-      
-      guard i.isReadyForMoreMediaData else {
-        return
-      }
-      
-      guard let pool = a.pixelBufferPool else {
-        return
-      }
-      
-      var outputBufferOpt: CVPixelBuffer?
-      let status = CVPixelBufferPoolCreatePixelBuffer(nil, pool, &outputBufferOpt)
-      guard status == kCVReturnSuccess, let outputBuffer = outputBufferOpt else {
-        return
-      }
-      
-      self.ciContext.render(
-        image,
-        to: outputBuffer,
-        bounds: image.extent,
-        colorSpace: CGColorSpaceCreateDeviceRGB()
+
+      let entry = FrameEntry(
+        filename: filename,
+        elapsed: elapsed,
+        fps: currentFPS,
+        flowTimings: flowDict,
+        totalMs: timing?.totalMs ?? 0
       )
-      
-      let ok = a.append(outputBuffer, withPresentationTime: time)
-      if !ok {
+
+      // Render CIImage → CGImage
+      guard let cgImage = self.ciContext.createCGImage(frame, from: frame.extent) else {
+        print("[DebugFrameSaver] Failed to create CGImage for \(filename)")
         return
       }
-      
-      self.didAppendAnyFrame = true
+
+      // Build EXIF metadata
+      let properties = Self.buildImageProperties(
+        fps: currentFPS,
+        timing: timing,
+        elapsed: elapsed
+      )
+
+      // Write HEIC with metadata
+      guard let dest = CGImageDestinationCreateWithURL(
+        fileURL as CFURL,
+        UTType.heic.identifier as CFString,
+        1,
+        nil
+      ) else {
+        print("[DebugFrameSaver] Failed to create image destination for \(filename)")
+        return
+      }
+
+      CGImageDestinationAddImage(dest, cgImage, properties as CFDictionary)
+
+      if !CGImageDestinationFinalize(dest) {
+        print("[DebugFrameSaver] Failed to finalize \(filename)")
+        return
+      }
+
+      self.manifest.append(entry)
     }
   }
-  
-  func stopAndSaveToPhotos(completion: @escaping (Result<Void, Error>) -> Void) {
+
+  func stop() {
     queue.async {
-      guard let w = self.writer,
-            let i = self.input,
-            let url = self.currentOutputURL else {
-        DispatchQueue.main.async {
-          completion(.failure(RecorderError.notStarted))
-        }
-        return
+      guard let sessionDir = self.sessionDir else { return }
+
+      // Write session.json manifest
+      let iso = ISO8601DateFormatter()
+      let sessionManifest = SessionManifest(
+        sessionStart: iso.string(from: self.sessionStartDate ?? Date()),
+        frameCount: self.manifest.count,
+        frames: self.manifest
+      )
+
+      let manifestURL = sessionDir.appendingPathComponent("session.json")
+      do {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(sessionManifest)
+        try data.write(to: manifestURL)
+      } catch {
+        print("[DebugFrameSaver] Failed to write session.json: \(error)")
       }
-      
-      guard !self.finished else {
-        self.saveVideoToPhotos(url, completion: completion)
-        return
-      }
-      
-      self.finished = true
-      i.markAsFinished()
-      
-      w.finishWriting {
-        self.queue.async {
-          self.writer = nil
-          self.input = nil
-          self.adaptor = nil
-        }
-        
-        if let err = w.error {
-          DispatchQueue.main.async {
-            completion(.failure(RecorderError.writerFailed(underlying: err)))
-          }
-          return
-        }
-        
-        if !self.didAppendAnyFrame {
-          DispatchQueue.main.async {
-            completion(.failure(RecorderError.noFramesAppended))
-          }
-          return
-        }
-        
-        self.saveVideoToPhotos(url, completion: completion)
-      }
+
+      print("[DebugFrameSaver] Session stopped: \(self.manifest.count) frames saved to \(sessionDir.path)")
+
+      // Reset state
+      self.sessionDir = nil
+      self.frameIndex = 0
+      self.manifest = []
+      self.startTime = 0
+      self.sessionStartDate = nil
     }
   }
-  
-  private func saveVideoToPhotos(_ url: URL, completion: @escaping (Result<Void, Error>) -> Void) {
-    requestAddOnlyPhotoAuth { status in
-      guard status == .authorized || status == .limited else {
-        DispatchQueue.main.async {
-          completion(.failure(RecorderError.photoPermissionDenied(status: status)))
-        }
-        return
-      }
-      
-      PHPhotoLibrary.shared().performChanges({
-        PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
-      }, completionHandler: { success, error in
-        DispatchQueue.main.async {
-          if success {
-            completion(.success(()))
-          } else {
-            completion(.failure(RecorderError.photoSaveFailed(underlying: error)))
-          }
-        }
-      })
-    }
-  }
-  
-  private func requestAddOnlyPhotoAuth(_ done: @escaping (PHAuthorizationStatus) -> Void) {
-    if #available(iOS 14, *) {
-      let status = PHPhotoLibrary.authorizationStatus(for: .addOnly)
-      if status == .notDetermined {
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { done($0) }
-      } else {
-        done(status)
-      }
-    } else {
-      let status = PHPhotoLibrary.authorizationStatus()
-      if status == .notDetermined {
-        PHPhotoLibrary.requestAuthorization { done($0) }
-      } else {
-        done(status)
-      }
-    }
-  }
-  
-  private static func timestampString(from date: Date) -> String {
-    let f = DateFormatter()
-    f.locale = Locale(identifier: "en_US_POSIX")
-    f.dateFormat = "yyyyMMddHHmmss"
-    return f.string(from: date)
-  }
-  
-  private static func makeUniqueURL(in dir: URL, baseName: String, ext: String) -> URL {
-    let fm = FileManager.default
-    var candidate = dir.appendingPathComponent("\(baseName).\(ext)")
-    var n = 1
-    while fm.fileExists(atPath: candidate.path) {
-      candidate = dir.appendingPathComponent("\(baseName)_\(n).\(ext)")
-      n += 1
-    }
-    return candidate
-  }
-  
-  private func overlayFrame(
-    _ frame: CIImage,
+
+  // MARK: - Private
+
+  private static func buildImageProperties(
+    fps: Double,
     timing: BusApproachTracker.TimingInfo?,
-    currentFPS: Double
-  ) -> CIImage {
-    let extent = frame.extent
-    let w = extent.width
-    let h = extent.height
-    guard w > 0, h > 0 else { return frame }
+    elapsed: Double
+  ) -> [CFString: Any] {
+    // Machine-readable JSON for EXIF UserComment
+    var jsonDict: [String: Any] = [
+      "fps": fps,
+      "elapsed": elapsed
+    ]
+    if let timing {
+      var flowDict: [String: Double] = [:]
+      for (name, ms) in timing.flowTimings {
+        flowDict[name] = ms
+      }
+      jsonDict["flowTimings"] = flowDict
+      jsonDict["totalMs"] = timing.totalMs
+    }
+    let jsonString: String
+    if let data = try? JSONSerialization.data(withJSONObject: jsonDict, options: [.sortedKeys]),
+       let str = String(data: data, encoding: .utf8) {
+      jsonString = str
+    } else {
+      jsonString = "{}"
+    }
 
+    // Human-readable summary for TIFF ImageDescription
     var lines: [String] = []
-    lines.append(String(format: "FPS: %.1f", currentFPS))
-
+    lines.append(String(format: "FPS: %.1f", fps))
     if let timing {
       for (name, ms) in timing.flowTimings {
         lines.append(String(format: "%@: %.1f ms", name, ms))
       }
       lines.append(String(format: "workflow: %.1f ms", timing.totalMs))
     }
+    lines.append(String(format: "elapsed: %.3f s", elapsed))
+    let humanReadable = lines.joined(separator: "\n")
 
-    let maxOverlayWidth: CGFloat = 640
-    let fontSize: CGFloat = 32
-    let lineHeight = fontSize * 1.3
-    let margin: CGFloat = 8
-    let textBlockHeight = lineHeight * CGFloat(lines.count) + margin * 2
-    let textBlockWidth = min(maxOverlayWidth, w)
-
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-
-    guard let ctx = CGContext(
-      data: nil, width: Int(w), height: Int(h),
-      bitsPerComponent: 8, bytesPerRow: 0,
-      space: colorSpace, bitmapInfo: bitmapInfo
-    ) else { return frame }
-
-    ctx.clear(CGRect(origin: .zero, size: CGSize(width: w, height: h)))
-
-    // Semi-transparent black background for text
-    ctx.setFillColor(red: 0, green: 0, blue: 0, alpha: 0.6)
-    ctx.fill(CGRect(x: 0, y: 0, width: textBlockWidth, height: textBlockHeight))
-
-    let attrs: [NSAttributedString.Key: Any] = [
-      .font: UIFont.monospacedSystemFont(ofSize: fontSize, weight: .bold),
-      .foregroundColor: UIColor.green
+    return [
+      kCGImagePropertyExifDictionary: [
+        kCGImagePropertyExifUserComment: jsonString
+      ],
+      kCGImagePropertyTIFFDictionary: [
+        kCGImagePropertyTIFFImageDescription: humanReadable
+      ]
     ]
+  }
 
-    // Draw text (flip coordinates for UIKit text drawing)
-    UIGraphicsPushContext(ctx)
-    ctx.saveGState()
-    ctx.textMatrix = .identity
-    ctx.translateBy(x: 0, y: h)
-    ctx.scaleBy(x: 1, y: -1)
-
-    let startY = h - textBlockHeight + margin
-    for (i, line) in lines.enumerated() {
-      let y = startY + CGFloat(i) * lineHeight
-      let str = NSAttributedString(string: line, attributes: attrs)
-      str.draw(at: CGPoint(x: margin, y: y))
-    }
-
-    ctx.restoreGState()
-    UIGraphicsPopContext()
-
-    guard let overlayCG = ctx.makeImage() else { return frame }
-    let overlayCI = CIImage(cgImage: overlayCG)
-    return overlayCI.composited(over: frame)
+  private static func timestampString(from date: Date) -> String {
+    let f = DateFormatter()
+    f.locale = Locale(identifier: "en_US_POSIX")
+    f.dateFormat = "yyyyMMdd_HHmmss"
+    return f.string(from: date)
   }
 }
