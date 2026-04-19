@@ -20,42 +20,14 @@ public actor CameraControllerMeta: CameraController {
 
     let wearables = Wearables.shared
 
-    // 2 — Already registered: discover real devices.
+    // 2 — Already registered: expose a CameraMeta that uses AutoDeviceSelector
+    //     to handle device discovery and BLE readiness internally.
     if wearables.registrationState == .registered {
-      let discovered = await Self.waitForDevices(wearables: wearables, timeout: .seconds(15))
-      for deviceId in discovered {
-        cameras.append(CameraMeta(deviceId: deviceId, wearables: wearables))
-      }
+      cameras.append(CameraMeta(wearables: wearables))
       return
     }
 
     // 3 — Not registered: expose a placeholder camera that drives the registration flow.
     cameras.append(CameraMetaRegistration(wearables: wearables))
-  }
-
-  // MARK: - Static helpers
-
-  static func waitForDevices(
-    wearables: WearablesInterface,
-    timeout: Duration
-  ) async -> [DeviceIdentifier] {
-    let existing = wearables.devices
-    if !existing.isEmpty { return existing }
-
-    return await withTaskGroup(of: [DeviceIdentifier].self) { group in
-      group.addTask {
-        for await devices in wearables.devicesStream() {
-          if !devices.isEmpty { return devices }
-        }
-        return []
-      }
-      group.addTask {
-        try? await Task.sleep(for: timeout)
-        return []
-      }
-      let result = await group.next() ?? []
-      group.cancelAll()
-      return result
-    }
   }
 }

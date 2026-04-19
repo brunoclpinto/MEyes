@@ -18,6 +18,7 @@ public enum CameraError: String {
   case noVideo
   case noSession
   case noDelegate
+  case noDevice
   
   public var rawValue: String {
     switch self {
@@ -35,6 +36,8 @@ public enum CameraError: String {
         return "No feed session".localizedCapitalized
       case .noDelegate:
         return "Missing delegate".localizedCapitalized
+      case .noDevice:
+        return "Device not connected".localizedCapitalized
     }
   }
 }

@@ -49,6 +49,7 @@ public actor CameraMeta: Camera {
   public let zoom: String = ""
 
   private let wearables: WearablesInterface
+  private let deviceSelector: AutoDeviceSelector
   private var stateContinuations: [AsyncStream<CameraState>.Continuation] = []
 
   // SDK session objects
@@ -62,14 +63,17 @@ public actor CameraMeta: Camera {
   private var videoToken: (any AnyListenerToken)?
   private var streamErrorToken: (any AnyListenerToken)?
 
+  // Monitoring
+  private var deviceMonitorTask: Task<Void, Never>?
+  private var nextFrameCallback: ((CIImage) -> Void)?
+
   /// Discards incoming frames while one is still being processed downstream.
   private let frameGate = FrameGate()
 
-  init(deviceId: DeviceIdentifier, wearables: WearablesInterface) {
+  init(wearables: WearablesInterface) {
     self.wearables = wearables
-    self.name = wearables
-      .deviceForIdentifier(deviceId)?
-      .nameOrId() ?? String(localized: "Unnamed Meta Wearable")
+    self.deviceSelector = AutoDeviceSelector(wearables: wearables)
+    self.name = String(localized: "Meta Glasses")
   }
 
   // MARK: - Connect
@@ -90,6 +94,7 @@ public actor CameraMeta: Camera {
         break
     }
     setState(.connecting)
+    nextFrameCallback = nextFrame
 
     // 1 — Check / request camera permission.
     do {
@@ -106,94 +111,36 @@ public actor CameraMeta: Camera {
       return
     }
 
-    // 2 — Create a DeviceSession.
-    let selector = AutoDeviceSelector(wearables: wearables)
-    let session: DeviceSession
-    do {
-      session = try wearables.createSession(deviceSelector: selector)
-    } catch {
-      print("[CameraMeta] createSession failed: \(error)")
-      setState(.disconnected(.noSession))
+    // 2 — Wait for a device to become available via AutoDeviceSelector.
+    print("[CameraMeta] waiting for active device…")
+    let hasDevice = await waitForActiveDevice(timeout: .seconds(15))
+    guard hasDevice else {
+      print("[CameraMeta] no active device found within timeout")
+      setState(.disconnected(.noDevice))
       return
     }
-    self.deviceSession = session
+    print("[CameraMeta] active device available: \(deviceSelector.activeDevice as Any)")
 
-    // 3 — Observe device session state + errors.
-    deviceStateToken = session.statePublisher.listen { [weak self] sdkState in
-      Task { [weak self] in
-        await self?.handleDeviceSessionState(sdkState)
-      }
-    }
-    deviceErrorToken = session.errorPublisher.listen { [weak self] sdkError in
-      Task { [weak self] in
-        print("[CameraMeta] DeviceSession error: \(sdkError)")
-        await self?.forceDisconnect()
-      }
-    }
-
-    // 4 — Start the device session (synchronous, throws).
-    do {
-      try session.start()
-    } catch {
-      print("[CameraMeta] DeviceSession.start() failed: \(error)")
-      await cancelAllTokens()
-      deviceSession = nil
+    // 3 — Create and start the DeviceSession.
+    guard let session = await createAndStartSession() else {
       setState(.disconnected(.noSession))
       return
     }
 
-    // 5 — Add the stream capability.
-    let config = StreamSessionConfig(
-      videoCodec: .raw,
-      resolution: .high,
-      frameRate: 30
-    )
-    let stream: StreamSession?
-    do {
-      stream = try session.addStream(config: config)
-    } catch {
-      print("[CameraMeta] addStream failed: \(error)")
+    // 4 — Add the stream capability (session is now .started).
+    guard let stream = addStream(to: session) else {
       session.stop()
-      await cancelAllTokens()
       deviceSession = nil
       setState(.disconnected(.noSession))
       return
     }
-    guard let stream else {
-      print("[CameraMeta] addStream returned nil")
-      session.stop()
-      await cancelAllTokens()
-      deviceSession = nil
-      setState(.disconnected(.noSession))
-      return
-    }
-    self.streamSession = stream
 
-    // 6 — Observe stream state, frames, and errors.
-    streamStateToken = stream.statePublisher.listen { [weak self] sdkState in
-      Task { [weak self] in
-        await self?.handleStreamSessionState(sdkState)
-      }
-    }
-    let gate = self.frameGate
-    videoToken = stream.videoFramePublisher.listen { videoFrame in
-      guard gate.tryEnter() else { return }
-      guard
-        let image = videoFrame.makeUIImage(),
-        let ciImage = CIImage(image: image)
-      else {
-        gate.leave()
-        return
-      }
-      nextFrame(ciImage)
-      gate.leave()
-    }
-    streamErrorToken = stream.errorPublisher.listen { [weak self] sdkError in
-      Task { [weak self] in
-        print("[CameraMeta] StreamSession error: \(sdkError)")
-        await self?.forceDisconnect()
-      }
-    }
+    // 5 — Set up runtime observers.
+    setupDeviceSessionObservers(session)
+    setupStreamObservers(stream, nextFrame: nextFrame)
+
+    // 6 — Start device monitoring for disconnect/reconnect.
+    startDeviceMonitoring()
 
     setState(.connected)
   }
@@ -271,20 +218,125 @@ public actor CameraMeta: Camera {
     setState(.stopped)
   }
 
+  // MARK: - Session Setup
+
+  /// Creates a DeviceSession using AutoDeviceSelector, starts it,
+  /// and waits for it to reach `.started` before returning.
+  private func createAndStartSession() async -> DeviceSession? {
+    let session: DeviceSession
+    do {
+      session = try wearables.createSession(deviceSelector: deviceSelector)
+    } catch {
+      print("[CameraMeta] createSession failed: \(error)")
+      return nil
+    }
+    self.deviceSession = session
+
+    // Get stateStream BEFORE calling start() to avoid missing the .started emission.
+    let stateStream = session.stateStream()
+    do {
+      try session.start()
+      print("[CameraMeta] DeviceSession.start() called, state: \(session.state)")
+    } catch {
+      print("[CameraMeta] DeviceSession.start() failed: \(error)")
+      deviceSession = nil
+      return nil
+    }
+
+    // Wait for .started (or bail on .stopped).
+    for await sdkState in stateStream {
+      print("[CameraMeta] DeviceSession state: \(sdkState)")
+      if sdkState == .started { return session }
+      if sdkState == .stopped {
+        print("[CameraMeta] DeviceSession went to .stopped before .started")
+        deviceSession = nil
+        return nil
+      }
+    }
+
+    print("[CameraMeta] DeviceSession stateStream ended unexpectedly")
+    deviceSession = nil
+    return nil
+  }
+
+  /// Adds a StreamSession capability to an already-started DeviceSession.
+  private func addStream(to session: DeviceSession) -> StreamSession? {
+    let config = StreamSessionConfig(
+      videoCodec: .raw,
+      resolution: .high,
+      frameRate: 30
+    )
+    let stream: StreamSession?
+    do {
+      stream = try session.addStream(config: config)
+    } catch {
+      print("[CameraMeta] addStream failed: \(error)")
+      return nil
+    }
+    guard let stream else {
+      print("[CameraMeta] addStream returned nil (session state: \(session.state))")
+      return nil
+    }
+    self.streamSession = stream
+    print("[CameraMeta] StreamSession created, state: \(stream.state)")
+    return stream
+  }
+
+  // MARK: - Observers
+
+  private func setupDeviceSessionObservers(_ session: DeviceSession) {
+    deviceStateToken = session.statePublisher.listen { [weak self] sdkState in
+      Task { [weak self] in
+        await self?.handleDeviceSessionState(sdkState)
+      }
+    }
+    deviceErrorToken = session.errorPublisher.listen { [weak self] sdkError in
+      Task { [weak self] in
+        print("[CameraMeta] DeviceSession error: \(sdkError)")
+        await self?.forceDisconnect()
+      }
+    }
+  }
+
+  private func setupStreamObservers(_ stream: StreamSession, nextFrame: @escaping (CIImage) -> Void) {
+    streamStateToken = stream.statePublisher.listen { [weak self] sdkState in
+      Task { [weak self] in
+        await self?.handleStreamSessionState(sdkState)
+      }
+    }
+    let gate = self.frameGate
+    videoToken = stream.videoFramePublisher.listen { videoFrame in
+      guard gate.tryEnter() else { return }
+      guard
+        let image = videoFrame.makeUIImage(),
+        let ciImage = CIImage(image: image)
+      else {
+        gate.leave()
+        return
+      }
+      nextFrame(ciImage)
+      gate.leave()
+    }
+    streamErrorToken = stream.errorPublisher.listen { [weak self] sdkError in
+      Task { [weak self] in
+        print("[CameraMeta] StreamSession error: \(sdkError)")
+        await self?.forceDisconnect()
+      }
+    }
+  }
+
   // MARK: - SDK State Handling
 
   private func handleDeviceSessionState(_ sdkState: DeviceSessionState) async {
     switch sdkState {
       case .started:
-        // Device is ready — no action needed, stream handles its own state.
         break
       case .paused:
-        // Device-initiated pause (e.g. cap-touch).
         if state == .started {
           setState(.stopped)
         }
       case .stopped:
-        // Device session ended — must tear down and create a new one.
+        // DeviceSession.stopped is terminal — must tear down.
         await forceDisconnect()
       case .idle, .starting, .stopping:
         break
@@ -305,6 +357,45 @@ public actor CameraMeta: Camera {
     }
   }
 
+  // MARK: - Device Monitoring
+
+  /// Waits for AutoDeviceSelector to report an active device.
+  private nonisolated func waitForActiveDevice(timeout: Duration) async -> Bool {
+    await withTaskGroup(of: Bool.self) { group in
+      group.addTask { [deviceSelector] in
+        for await device in deviceSelector.activeDeviceStream() {
+          if device != nil { return true }
+        }
+        return false
+      }
+      group.addTask {
+        try? await Task.sleep(for: timeout)
+        return false
+      }
+      let result = await group.next() ?? false
+      group.cancelAll()
+      return result
+    }
+  }
+
+  /// Monitors device availability. If the device is lost, tears down the session.
+  private func startDeviceMonitoring() {
+    deviceMonitorTask?.cancel()
+    deviceMonitorTask = Task { [weak self, deviceSelector] in
+      // Skip the first emission (current state) — we only care about changes.
+      var isFirst = true
+      for await device in deviceSelector.activeDeviceStream() {
+        guard let self else { return }
+        if isFirst { isFirst = false; continue }
+        if device == nil {
+          print("[CameraMeta] device lost, forcing disconnect")
+          await self.forceDisconnect()
+          return
+        }
+      }
+    }
+  }
+
   // MARK: - Teardown
 
   private func forceDisconnect() async {
@@ -313,6 +404,9 @@ public actor CameraMeta: Camera {
   }
 
   private func teardown() async {
+    deviceMonitorTask?.cancel()
+    deviceMonitorTask = nil
+    nextFrameCallback = nil
     await cancelAllTokens()
     await streamSession?.stop()
     streamSession = nil
